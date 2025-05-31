@@ -99,9 +99,9 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
 }) => {
   // サイズに基づいてフォントサイズクラスを決定
   const fontSizeClass = {
-    normal: 'text-4xl', // さらに小さくした
-    large: 'text-6xl',  // さらに小さくした
-    xlarge: 'text-7xl', // さらに小さくした
+    normal: 'text-5xl', // 1段階大きく
+    large: 'text-7xl',  // 1段階大きく
+    xlarge: 'text-8xl', // 1段階大きく
   }[size];
 
   // サイズに基づいてヒントテキストのフォントサイズを決定 - より小さく
@@ -120,9 +120,9 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
   
   // サイズに基づいてコードタイプのフォントサイズを決定
   const chordTypeSizeClass = {
-    normal: 'text-xl',
-    large: 'text-2xl',
-    xlarge: 'text-4xl',
+    normal: 'text-2xl', // 1段階大きく
+    large: 'text-3xl',  // 1段階大きく
+    xlarge: 'text-5xl', // 1段階大きく
   }[size];
 
   // 現在の音名を分解
