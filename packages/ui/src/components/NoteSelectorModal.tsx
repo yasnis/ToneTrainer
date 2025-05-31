@@ -32,6 +32,63 @@ const getChordName = (root: string, type: string): string => {
   return `${root}${type}`;
 };
 
+/**
+ * コード名を分解してルート音とコードタイプに分ける関数
+ */
+const splitChordName = (chordName: string): { root: string; type: string | null } => {
+  // コードタイプの一覧 - 長いものから順に検索
+  const sortedChordTypes = ['m7(b5)', 'maj7', 'dim7', 'm7', '7'];
+  
+  for (const type of sortedChordTypes) {
+    if (chordName.endsWith(type)) {
+      return {
+        root: chordName.substring(0, chordName.length - type.length),
+        type: type
+      };
+    }
+  }
+  return { root: chordName, type: null };
+};
+
+/**
+ * 音名を分解して、基本音と修飾子（#やb）に分ける
+ * 例: "C#" -> { base: "C", modifier: "#" }
+ */
+const splitNoteName = (name: string): { base: string; modifier: string | null } => {
+  // #やbを含む場合
+  if (name.includes('#') || name.includes('b')) {
+    return {
+      base: name.charAt(0),
+      modifier: name.substring(1)
+    };
+  }
+  
+  // 修飾子なしの場合
+  return {
+    base: name,
+    modifier: null
+  };
+};
+
+/**
+ * コード名を表示するコンポーネント
+ * ルート音とコードタイプを別々のスタイルで表示
+ */
+const ChordDisplay: React.FC<{ chord: string }> = ({ chord }) => {
+  const { root, type } = splitChordName(chord);
+  
+  return (
+    <span className="flex items-baseline">
+      {root}
+      {type && (
+        <span className="text-sm text-gray-400 ml-0.5">
+          {type}
+        </span>
+      )}
+    </span>
+  );
+};
+
 interface NoteSelectorModalProps {
   /**
    * 現在選択されている音符のリスト
@@ -302,8 +359,8 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
           </div>
           <div className="flex flex-wrap gap-1">
             {(activeTab === 'notes' ? selectedSingleNotes : selectedChords).map((item) => (
-              <span key={item} className="bg-primary bg-opacity-20 px-2 py-1 rounded text-xs">
-                {item}
+              <span key={item} className="bg-primary bg-opacity-20 px-2 py-1 rounded text-xs flex items-baseline">
+                <ChordDisplay chord={item} />
               </span>
             ))}
             {(activeTab === 'notes' ? selectedSingleNotes.length : selectedChords.length) === 0 && (

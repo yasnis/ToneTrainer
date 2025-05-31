@@ -22,8 +22,8 @@ export const NextNote: React.FC<NextNoteProps> = ({
   className = '' 
 }) => {
   return (
-    <div className={`text-gray-400 ${className}`}>
-      Next: <span className="font-medium">{note}</span>
+    <div className={`text-gray-400 text-4xl p-4 ${className}`}>
+      Next: <span className="font-medium text-5xl">{note}</span>
     </div>
   );
 };

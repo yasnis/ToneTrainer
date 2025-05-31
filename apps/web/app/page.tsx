@@ -2,9 +2,101 @@
 
 import { ControlsCard, NoteDisplay, BeatVisualizer, BeatPositionDisplay } from '@tone-trainer/ui';
 import { BeatManager } from '@tone-trainer/core/src/utils/BeatManager';
-import { metronome } from '@tone-trainer/core/src/audio';
 import { useState, useEffect, useRef } from 'react';
-import * as Tone from 'tone';
+
+// メトロノーム音を再生するシンプルなクラス
+class SimpleMetronome {
+  private audioContext: AudioContext | null = null;
+  private oscillator: OscillatorNode | null = null;
+  private gainNode: GainNode | null = null;
+  private isPlaying: boolean = false;
+  private voiceType: 'click' | 'wood' | 'beep' = 'click';
+  private accentEnabled: boolean = true;
+  
+  constructor() {
+    // ユーザージェスチャー後に初期化するため、コンストラクタでは何もしない
+  }
+  
+  // 初期化（ユーザージェスチャー後に呼び出す）
+  async initialize() {
+    if (this.audioContext) return true;
+    
+    try {
+      this.audioContext = new AudioContext();
+      console.log('SimpleMetronome initialized');
+      return true;
+    } catch (error) {
+      console.error('Failed to initialize SimpleMetronome:', error);
+      return false;
+    }
+  }
+  
+  // 設定関数
+  setVoiceType(type: 'click' | 'wood' | 'beep') {
+    this.voiceType = type;
+  }
+  
+  setAccent(enabled: boolean) {
+    this.accentEnabled = enabled;
+  }
+  
+  // クリック音を再生（拍の番号を渡すことで、アクセントを適用するかどうかを判断）
+  playClick(beatNumber: number = 1) {
+    if (!this.audioContext) return;
+    
+    // 周波数とタイプの設定（音声タイプと拍の位置に基づく）
+    let frequency = 800;
+    let oscillatorType: OscillatorType = 'triangle';
+    let gainValue = 0.5;
+    let duration = 100; // ミリ秒
+    
+    // 音声タイプに基づく設定
+    switch (this.voiceType) {
+      case 'wood':
+        oscillatorType = 'triangle';
+        frequency = 600;
+        break;
+      case 'beep':
+        oscillatorType = 'sine';
+        frequency = 880;
+        break;
+      case 'click':
+      default:
+        oscillatorType = 'triangle';
+        frequency = 800;
+        break;
+    }
+    
+    // アクセントが有効で最初の拍の場合、音を強調
+    if (this.accentEnabled && beatNumber === 1) {
+      frequency *= 1.2; // 周波数を少し上げる
+      gainValue *= 1.2; // 音量を少し上げる
+    }
+    
+    // オシレーターを作成
+    const oscillator = this.audioContext.createOscillator();
+    oscillator.type = oscillatorType;
+    oscillator.frequency.value = frequency;
+    
+    // ゲインノードを作成（音量制御用）
+    const gainNode = this.audioContext.createGain();
+    gainNode.gain.value = gainValue;
+    
+    // 接続
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+    
+    // 短い音を再生
+    oscillator.start();
+    
+    // 設定した時間後に停止
+    setTimeout(() => {
+      oscillator.stop();
+      oscillator.disconnect();
+      gainNode.disconnect();
+    }, duration);
+  }
+}
 
 export default function Home() {
   // 再生状態の管理
@@ -22,63 +114,157 @@ export default function Home() {
   // 拍子の設定
   const [meter, setMeter] = useState<[number, number]>([4, 4]);
   
+  // 音声タイプの設定
+  const [voiceType, setVoiceType] = useState<'click' | 'wood' | 'beep'>('click');
+  
+  // アクセントの設定
+  const [accentEnabled, setAccentEnabled] = useState(true);
+  
+  // 音符変更間隔の設定
+  const [changeEvery, setChangeEvery] = useState(1);
+  
+  // 選択された音符
+  const [selectedNotes, setSelectedNotes] = useState(['C', 'D', 'E', 'F', 'G', 'A', 'B']);
+  
   // 現在の拍子位置の管理
   const [currentBeat, setCurrentBeat] = useState(1);
   
   // 現在の小節位置の管理
   const [currentMeasure, setCurrentMeasure] = useState(1);
   
-  // Tone.jsの初期化フラグ
-  const [isToneInitialized, setIsToneInitialized] = useState(false);
+  // 音符変更タイミングをカウントするための変数
+  const measureCountRef = useRef(0);
+  
+  // オーディオの初期化フラグ
+  const [isAudioInitialized, setIsAudioInitialized] = useState(false);
+  
+  // SimpleMetronomeの参照を保持するためのref
+  const simpleMetronomeRef = useRef<SimpleMetronome | null>(null);
   
   // BeatManagerの参照を保持するためのref
   const beatManagerRef = useRef<BeatManager | null>(null);
   
-  // Tone.jsの初期化
-  useEffect(() => {
-    // ユーザーのジェスチャーがある時に初期化される
-    const initializeTone = async () => {
-      await Tone.start();
-      setIsToneInitialized(true);
-      console.log('Tone.js initialized');
-    };
-    
-    // この時点では初期化しておく（ユーザーのジェスチャーが必要なので実際には再生時に初期化される）
-    initializeTone().catch(console.error);
-  }, []);
-  
-  // 初回レンダリング時にBeatManagerをインスタンス化
+  // 初回レンダリング時にインスタンスと初期音符を初期化
   useEffect(() => {
     // BeatManagerのインスタンスを作成
     beatManagerRef.current = new BeatManager(bpm, true);
     
-    // コンポーネントがアンマウントされる際にリスナーを削除するための関数を返す
+    // SimpleMetronomeのインスタンスを作成
+    simpleMetronomeRef.current = new SimpleMetronome();
+    
+    // 初期音符を設定
+    if (selectedNotes.length > 0) {
+      // 初期の現在の音符を設定
+      const initialCurrentIndex = Math.floor(Math.random() * selectedNotes.length);
+      const initialCurrentNote = selectedNotes[initialCurrentIndex];
+      setCurrentNote(initialCurrentNote);
+      
+      // 初期の次の音符を設定（現在の音符と異なるもの）
+      let initialNextIndex;
+      do {
+        initialNextIndex = Math.floor(Math.random() * selectedNotes.length);
+      } while (initialNextIndex === initialCurrentIndex && selectedNotes.length > 1);
+      
+      setNextNote(selectedNotes[initialNextIndex]);
+    }
+    
+    // コンポーネントがアンマウントされる際の処理
     return () => {
       // 特に何もしなくてよい
-      // BeatManagerのインスタンスはガベージコレクションにより自動的に破棄される
+      // インスタンスはガベージコレクションにより自動的に破棄される
     };
   }, []);
+  
+  // selectedNotesが変更された時にCurrentNoteとNextNoteも更新
+  useEffect(() => {
+    // 選択された音符が空の場合は何もしない
+    if (selectedNotes.length === 0) return;
+    
+    // 現在の音符をランダムに選択
+    const randomCurrentIndex = Math.floor(Math.random() * selectedNotes.length);
+    const newCurrentNote = selectedNotes[randomCurrentIndex];
+    
+    // 次の音符を選択（現在の音符と異なるもの）
+    let randomNextIndex;
+    do {
+      randomNextIndex = Math.floor(Math.random() * selectedNotes.length);
+    } while (randomNextIndex === randomCurrentIndex && selectedNotes.length > 1);
+    
+    // 音符を更新
+    setCurrentNote(newCurrentNote);
+    setNextNote(selectedNotes[randomNextIndex]);
+    
+    // 音符変更時に小節カウンターをリセット
+    measureCountRef.current = 0;
+    setCurrentMeasure(1);
+  }, [selectedNotes]);
   
   // BPMが変更された時にBeatManagerのBPMも更新
   useEffect(() => {
     if (beatManagerRef.current) {
       beatManagerRef.current.setBpm(bpm);
     }
-    
-    // メトロノームのテンポも更新
-    metronome.setTempo(bpm);
   }, [bpm]);
+  
+  // 音声タイプが変更された時にSimpleMetronomeの設定も更新
+  useEffect(() => {
+    if (simpleMetronomeRef.current) {
+      simpleMetronomeRef.current.setVoiceType(voiceType);
+    }
+  }, [voiceType]);
+  
+  // アクセント設定が変更された時にSimpleMetronomeの設定も更新
+  useEffect(() => {
+    if (simpleMetronomeRef.current) {
+      simpleMetronomeRef.current.setAccent(accentEnabled);
+    }
+  }, [accentEnabled]);
+  
+  // ランダムな音符を選択する関数
+  const selectRandomNote = () => {
+    if (selectedNotes.length === 0) return;
+    
+    // 現在のNextNoteをCurrentNoteに移動
+    setCurrentNote(nextNote);
+    
+    // 次の音符用に、現在の音符と異なる新しいランダムな音符を選択
+    let newNextNote;
+    do {
+      const randomIndex = Math.floor(Math.random() * selectedNotes.length);
+      newNextNote = selectedNotes[randomIndex];
+    } while ((newNextNote === nextNote || newNextNote === currentNote) && selectedNotes.length > 2);
+    
+    // 新しい次の音符を設定
+    setNextNote(newNextNote);
+    
+    // 音符更新時に小節カウンターを1にリセット
+    setCurrentMeasure(1);
+  };
+  
+  // オーディオの初期化（ユーザージェスチャー時に呼び出す）
+  const initializeAudio = async () => {
+    if (isAudioInitialized) return true;
+    
+    if (simpleMetronomeRef.current) {
+      const success = await simpleMetronomeRef.current.initialize();
+      if (success) {
+        setIsAudioInitialized(true);
+        console.log('Audio initialized successfully');
+        return true;
+      }
+    }
+    
+    console.error('Could not initialize audio');
+    return false;
+  };
   
   // 再生/停止をトグルする関数
   const togglePlayback = async () => {
-    // まだTone.jsが初期化されていない場合は初期化
-    if (!isToneInitialized) {
-      try {
-        await Tone.start();
-        setIsToneInitialized(true);
-        console.log('Tone.js initialized');
-      } catch (error) {
-        console.error('Failed to initialize Tone.js:', error);
+    // まだオーディオが初期化されていない場合は初期化
+    if (!isAudioInitialized) {
+      const success = await initializeAudio();
+      if (!success) {
+        console.error('Could not initialize audio, playback not started');
         return;
       }
     }
@@ -87,13 +273,11 @@ export default function Home() {
     const newPlayingState = !isPlaying;
     setIsPlaying(newPlayingState);
     
-    // 再生状態に応じてメトロノームを制御
+    // 再生開始時は、小節カウンターと拍位置をリセット
     if (newPlayingState) {
-      // 再生開始
-      metronome.start(bpm);
-    } else {
-      // 再生停止
-      metronome.stop();
+      setCurrentBeat(1);
+      setCurrentMeasure(1);
+      measureCountRef.current = 0;
     }
   };
   
@@ -104,21 +288,69 @@ export default function Home() {
     let removeListener: (() => void) | null = null;
     
     if (isPlaying) {
+      // 前回のビート処理中かどうかを示すフラグ
+      let isProcessingBeat = false;
+      
       // BeatManagerにビートリスナーを登録
       removeListener = beatManagerRef.current.addBeatListener(() => {
-        // ビートごとに呼び出される処理
-        setCurrentBeat((prevBeat) => {
-          // 次の拍に進む
-          const nextBeat = prevBeat + 1;
+        // 前回のビート処理中なら処理をスキップ（同時に複数の処理が走らないようにする）
+        if (isProcessingBeat) return;
+        isProcessingBeat = true;
+        
+        // 次の拍と小節の値を計算
+        let nextBeat = currentBeat + 1;
+        let nextMeasure = currentMeasure;
+        let shouldUpdateNote = false;
+        
+        // 1小節が終わったら次の小節へ
+        if (nextBeat > meter[0]) {
+          nextBeat = 1;
           
-          // 1小節が終わったら次の小節へ
-          if (nextBeat > meter[0]) {
-            setCurrentMeasure((prevMeasure) => prevMeasure + 1);
-            return 1;
+          // 小節カウンターをインクリメント
+          measureCountRef.current += 1;
+          
+          // 変更間隔に達したら音符を変更
+          if (measureCountRef.current >= changeEvery) {
+            measureCountRef.current = 0;
+            shouldUpdateNote = true;
+            // 音符変更時は小節カウンターをリセット
+            nextMeasure = 1;
+          } else {
+            // 音符変更がない場合は小節をインクリメント
+            nextMeasure = currentMeasure + 1;
           }
-          
-          return nextBeat;
-        });
+        }
+        
+        // クリック音を再生（次の拍番号を渡す）
+        if (simpleMetronomeRef.current && isAudioInitialized) {
+          simpleMetronomeRef.current.playClick(nextBeat);
+        }
+        
+        // ビートと小節の状態を一度に更新
+        setCurrentBeat(nextBeat);
+        setCurrentMeasure(nextMeasure);
+        
+        // 音符の更新は小節と拍の更新後に行う
+        if (shouldUpdateNote) {
+          // 現在の音符と次の音符を更新
+          if (selectedNotes.length > 0) {
+            // 現在のNextNoteをCurrentNoteに移動
+            setCurrentNote(nextNote);
+            
+            // 次の音符用に、現在の音符と異なる新しいランダムな音符を選択
+            let newNextNote;
+            do {
+              const randomIndex = Math.floor(Math.random() * selectedNotes.length);
+              newNextNote = selectedNotes[randomIndex];
+            } while ((newNextNote === nextNote || newNextNote === currentNote) && selectedNotes.length > 2);
+            
+            // 新しい次の音符を設定
+            setNextNote(newNextNote);
+          }
+        }
+        
+        // ビート処理完了を示す
+        isProcessingBeat = false;
       });
     }
     
@@ -128,7 +360,7 @@ export default function Home() {
         removeListener();
       }
     };
-  }, [isPlaying, meter]);
+  }, [isPlaying, meter, isAudioInitialized, changeEvery, selectedNotes, currentNote, nextNote, currentBeat, currentMeasure]);
   
   // コンテナのサイズを参照するためのref
   const containerRef = useRef<HTMLDivElement>(null);
@@ -220,7 +452,21 @@ export default function Home() {
       </div>
       
       {/* コントロールエリア - 画面下部に固定 */}
-      <ControlsCard className="w-full max-w-3xl mb-4" />
+      <ControlsCard 
+        className="w-full max-w-3xl mb-4"
+        bpm={bpm}
+        onBpmChange={setBpm}
+        meter={meter}
+        onMeterChange={setMeter}
+        voice={voiceType}
+        onVoiceChange={setVoiceType}
+        accent={accentEnabled}
+        onAccentChange={setAccentEnabled}
+        changeEvery={changeEvery}
+        onChangeEveryChange={setChangeEvery}
+        selectedNotes={selectedNotes}
+        onSelectedNotesChange={setSelectedNotes}
+      />
     </div>
   );
 }

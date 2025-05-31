@@ -8,12 +8,12 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "tone": "^14.7.77",
+    "tone": "^15.1.22",
     "zustand": "^4.4.0"
   },
   "devDependencies": {
+    "@tone-trainer/config": "*",
     "typescript": "^5.0.0",
-    "vitest": "^0.34.0",
-    "@tone-trainer/config": "*"
+    "vitest": "^0.34.0"
   }
 }
