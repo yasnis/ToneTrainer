@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { AppHeader } from '@tone-trainer/ui';
 import './globals.css';
+import GoogleAnalytics from './components/GoogleAnalytics';
 
 export const metadata: Metadata = {
   title: 'Random Tone Trainer',
@@ -14,6 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" className="h-full overflow-hidden">
+      <head>
+        {/* Google Analytics コンポーネントを追加 */}
+        <GoogleAnalytics />
+      </head>
       <body className="bg-background text-text h-full overflow-hidden flex flex-col">
         <AppHeader />
         <main className="flex-1 overflow-hidden">
