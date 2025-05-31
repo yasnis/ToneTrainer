@@ -338,7 +338,7 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
               onChange={handleBpmChange}
               className="flex-1 accent-primary"
             />
-            <span className="text-xs ml-2 w-12">{bpmValue} BPM</span>
+            <span className="text-xs ml-2 whitespace-nowrap min-w-[30px] text-right">{bpmValue} BPM</span>
           </div>
         </div>
         
