@@ -99,9 +99,9 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
 }) => {
   // サイズに基づいてフォントサイズクラスを決定
   const fontSizeClass = {
-    normal: 'text-6xl',
-    large: 'text-8xl',
-    xlarge: 'text-9xl',
+    normal: 'text-4xl', // さらに小さくした
+    large: 'text-6xl',  // さらに小さくした
+    xlarge: 'text-7xl', // さらに小さくした
   }[size];
 
   // サイズに基づいてヒントテキストのフォントサイズを決定 - より小さく
@@ -120,9 +120,9 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
   
   // サイズに基づいてコードタイプのフォントサイズを決定
   const chordTypeSizeClass = {
-    normal: 'text-4xl',
-    large: 'text-5xl',
-    xlarge: 'text-6xl',
+    normal: 'text-xl',
+    large: 'text-2xl',
+    xlarge: 'text-4xl',
   }[size];
 
   // 現在の音名を分解
@@ -144,7 +144,7 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
             {currentRoot}
           </span>
           {currentChordType && (
-            <span className={`${chordTypeSizeClass} font-medium ml-1 text-gray-300`}>
+            <span className={`${chordTypeSizeClass} font-medium ml-1 text-gray-400`}>
               {currentChordType}
             </span>
           )}
@@ -156,7 +156,7 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
             <span className={`${nextNoteSizeClass} font-medium flex items-baseline tracking-tighter`}>
               {nextRoot}
               {nextChordType && (
-                <span className="text-xl ml-0.5 text-gray-500">
+                <span className="text-xl ml-0.5 text-gray-400">
                   {nextChordType}
                 </span>
               )}
