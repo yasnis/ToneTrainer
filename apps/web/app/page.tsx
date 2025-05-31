@@ -443,6 +443,8 @@ export default function Home() {
                 <BeatPositionDisplay 
                   measure={currentMeasure}
                   beat={currentBeat}
+                  meter={meter}
+                  changeEvery={changeEvery}
                   className="text-lg opacity-80"
                 />
               </div>
