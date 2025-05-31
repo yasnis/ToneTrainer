@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 // Google Analytics 測定ID
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // ここに実際のGA4測定IDを入力してください
+const GA_MEASUREMENT_ID = 'G-CXPTJZ0KFL'; // ここに実際のGA4測定IDを入力してください
 
 export default function GoogleAnalytics() {
   const pathname = usePathname();
