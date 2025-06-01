@@ -253,16 +253,16 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-surface p-4 rounded-lg w-[500px] max-w-[95vw]">
-        <h2 className="text-lg font-medium mb-4">Select Notes/Chords</h2>
+      <div className="bg-gradient-light p-4 rounded-lg w-[500px] max-w-[95vw] shadow-card">
+        <h2 className="text-lg font-medium mb-4 text-textDark">Select Notes/Chords</h2>
         
         {/* タブ切り替え */}
-        <div className="flex border-b border-gray-600 mb-4">
+        <div className="flex border-b border-gray-200 mb-4">
           <button
             className={`px-4 py-2 ${
               activeTab === 'notes'
                 ? 'border-b-2 border-primary text-primary'
-                : 'text-gray-400'
+                : 'text-text'
             }`}
             onClick={() => setActiveTab('notes')}
           >
@@ -272,7 +272,7 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
             className={`px-4 py-2 ${
               activeTab === 'chords'
                 ? 'border-b-2 border-primary text-primary'
-                : 'text-gray-400'
+                : 'text-text'
             }`}
             onClick={() => setActiveTab('chords')}
           >
@@ -288,7 +288,7 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
                 key={note}
                 onClick={() => toggleNote(note)}
                 className={`p-2 rounded ${
-                  selectedSingleNotes.includes(note) ? 'bg-primary' : 'bg-gray-700'
+                  selectedSingleNotes.includes(note) ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-text'
                 } transition-colors text-sm`}
               >
                 {note}
@@ -302,7 +302,7 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
           <div className="mb-4 max-h-[350px] overflow-y-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="text-xs text-gray-400 border-b border-gray-700">
+                <tr className="text-xs text-text border-b border-gray-200">
                   <th className="py-2 text-left pl-2 w-[25%]">Root</th>
                   {CHORD_TYPES.map(type => (
                     <th key={type} className="py-2 text-center w-[15%]">{type}</th>
@@ -311,8 +311,8 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
               </thead>
               <tbody>
                 {ROOT_NOTES.map(root => (
-                  <tr key={root} className="border-b border-gray-800">
-                    <td className="py-2 pl-2 text-sm">{root}</td>
+                  <tr key={root} className="border-b border-gray-100">
+                    <td className="py-2 pl-2 text-sm text-text">{root}</td>
                     {CHORD_TYPES.map(type => {
                       const chordName = getChordName(root, type);
                       return (
@@ -320,7 +320,7 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
                           <button
                             onClick={() => toggleChord(root, type)}
                             className={`w-full py-1 rounded ${
-                              selectedChords.includes(chordName) ? 'bg-primary' : 'bg-gray-700'
+                              selectedChords.includes(chordName) ? 'bg-primary text-white' : 'bg-white border border-gray-200 text-text'
                             } transition-colors text-xs`}
                             aria-label={`${root} ${type}`}
                           >
@@ -340,13 +340,13 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
         <div className="flex gap-2 mb-4">
           <button 
             onClick={selectAll}
-            className="bg-surface border border-gray-600 px-3 py-1 rounded flex-1 hover:bg-gray-700 transition-colors"
+            className="bg-white border border-gray-200 px-3 py-1 rounded flex-1 hover:bg-gray-50 transition-colors text-text"
           >
             Select All
           </button>
           <button 
             onClick={clearSelection}
-            className="bg-surface border border-gray-600 px-3 py-1 rounded flex-1 hover:bg-gray-700 transition-colors"
+            className="bg-white border border-gray-200 px-3 py-1 rounded flex-1 hover:bg-gray-50 transition-colors text-text"
           >
             Clear
           </button>
@@ -354,17 +354,17 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
         
         {/* 選択状態の表示 */}
         <div className="mb-4 max-h-20 overflow-y-auto">
-          <div className="text-xs text-gray-400 mb-1">
+          <div className="text-xs text-text mb-1">
             {activeTab === 'notes' ? 'Selected Notes:' : 'Selected Chords:'}
           </div>
           <div className="flex flex-wrap gap-1">
             {(activeTab === 'notes' ? selectedSingleNotes : selectedChords).map((item) => (
-              <span key={item} className="bg-primary bg-opacity-20 px-2 py-1 rounded text-xs flex items-baseline">
+              <span key={item} className="bg-primary bg-opacity-20 px-2 py-1 rounded text-xs flex items-baseline text-text">
                 <ChordDisplay chord={item} />
               </span>
             ))}
             {(activeTab === 'notes' ? selectedSingleNotes.length : selectedChords.length) === 0 && (
-              <span className="text-gray-500 text-xs italic">None selected</span>
+              <span className="text-text opacity-50 text-xs italic">None selected</span>
             )}
           </div>
         </div>
@@ -373,13 +373,13 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
         <div className="flex justify-end gap-2">
           <button 
             onClick={handleCancel}
-            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 transition-colors"
+            className="bg-white border border-gray-200 px-3 py-1 rounded hover:bg-gray-50 transition-colors text-text"
           >
             Cancel
           </button>
           <button 
             onClick={handleSave}
-            className="bg-primary px-3 py-1 rounded hover:bg-primary-dark transition-colors"
+            className="bg-primary px-3 py-1 rounded hover:opacity-90 transition-colors text-white"
           >
             Save
           </button>

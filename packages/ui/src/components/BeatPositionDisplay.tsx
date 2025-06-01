@@ -46,7 +46,7 @@ export const BeatPositionDisplay: React.FC<BeatPositionDisplayProps> = ({
   // ドットのサイズと間隔の設定
   const dotSize = 10;
   const dotSpacing = 16;
-  const dotColor = "currentColor";
+  const dotColor = "currentColor"; // カラーはcurrentColorを使用（親要素から継承）
   
   // 拍子の視覚的表現をSVGで生成
   const renderBeats = () => {
@@ -67,6 +67,7 @@ export const BeatPositionDisplay: React.FC<BeatPositionDisplayProps> = ({
           stroke={dotColor} 
           strokeWidth="1" 
           fill={isFilled ? dotColor : "none"} 
+          className="opacity-80"
         />
       );
     }
@@ -103,6 +104,7 @@ export const BeatPositionDisplay: React.FC<BeatPositionDisplayProps> = ({
           stroke={dotColor} 
           strokeWidth="1" 
           fill={isFilled ? dotColor : "none"} 
+          className="opacity-80"
         />
       );
     }
@@ -115,7 +117,7 @@ export const BeatPositionDisplay: React.FC<BeatPositionDisplayProps> = ({
   };
 
   return (
-    <div className={`font-medium ${className}`}>
+    <div className={`font-medium text-text ${className}`}>
       <div className="flex items-center mb-1">
         {renderBeats()}
       </div>

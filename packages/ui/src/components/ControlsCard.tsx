@@ -289,10 +289,10 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
   };
 
   return (
-    <div className={`bg-surface rounded-lg p-4 shadow-md ${className}`}>
+    <div className={`bg-gradient-light rounded-lg p-4 shadow-card ${className}`}>
       {/* NotesとEditButtonを1行に配置 */}
       <div className="flex items-center gap-2 mb-3">
-        <label className="text-xs font-medium text-gray-400 w-16">
+        <label className="text-xs font-medium text-text w-16">
           Notes
         </label>
         <div className="flex-1 flex items-center justify-between">
@@ -304,7 +304,7 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
                 <span key={note} className="bg-primary bg-opacity-20 px-2 py-1 rounded text-sm flex items-baseline">
                   {root}
                   {chordType && (
-                    <span className="text-sm text-gray-400 ml-0.5">
+                    <span className="text-sm text-text opacity-70 ml-0.5">
                       {chordType}
                     </span>
                   )}
@@ -314,7 +314,7 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
           </div>
           <button 
             onClick={openNoteSelector}
-            className="bg-surface hover:bg-gray-700 p-2 rounded-full transition-colors ml-2"
+            className="bg-surface hover:bg-gray-100 p-2 rounded-full transition-colors ml-2"
             aria-label="Edit notes"
           >
             ✏️
@@ -326,7 +326,7 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
       <div className="space-y-3">
         {/* BPM スライダー */}
         <div className="flex items-center gap-2">
-          <label className="text-xs font-medium text-gray-400 w-16">
+          <label className="text-xs font-medium text-text w-16">
             Tempo
           </label>
           <div className="flex-1 flex items-center">
@@ -338,7 +338,7 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
               onChange={handleBpmChange}
               className="flex-1 accent-primary"
             />
-            <span className="text-xs ml-2 whitespace-nowrap min-w-[30px] text-right">{bpmValue} BPM</span>
+            <span className="text-xs ml-2 whitespace-nowrap min-w-[30px] text-right text-text">{bpmValue} BPM</span>
           </div>
         </div>
         
@@ -346,11 +346,11 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
         <div className="flex gap-4">
           {/* 拍子選択 */}
           <div className="flex items-center gap-2 flex-1">
-            <label className="text-xs font-medium text-gray-400 w-16">
+            <label className="text-xs font-medium text-text w-16">
               Meter
             </label>
             <select 
-              className="flex-1 bg-surface border border-gray-600 rounded px-2 py-1 text-sm"
+              className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-sm text-text"
               value={`${localMeter[0]}/${localMeter[1]}`}
               onChange={handleMeterChange}
             >
@@ -362,11 +362,11 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
           
           {/* 音声選択 */}
           <div className="flex items-center gap-2 flex-1">
-            <label className="text-xs font-medium text-gray-400 w-16">
+            <label className="text-xs font-medium text-text w-16">
               Voice
             </label>
             <select 
-              className="flex-1 bg-surface border border-gray-600 rounded px-2 py-1 text-sm"
+              className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-sm text-text"
               value={localVoice}
               onChange={handleVoiceChange}
             >
@@ -381,7 +381,7 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
         <div className="flex gap-4">
           {/* アクセント切り替え */}
           <div className="flex items-center gap-2 flex-1">
-            <label className="text-xs font-medium text-gray-400 w-16">
+            <label className="text-xs font-medium text-text w-16">
               Accent
             </label>
             <div className="flex-1">
@@ -392,27 +392,27 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
                   checked={localAccent}
                   onChange={handleAccentChange}
                 />
-                <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
           </div>
           
           {/* ChangeEvery */}
           <div className="flex items-center gap-2 flex-1">
-            <label className="text-xs font-medium text-gray-400 w-16">
+            <label className="text-xs font-medium text-text w-16">
               Change
             </label>
             <div className="flex flex-1">
               <button 
-                className="bg-surface border border-gray-600 px-2 py-0 rounded-l text-sm"
+                className="bg-white border border-gray-200 px-2 py-0 rounded-l text-sm text-text"
                 onClick={decreaseChangeEvery}
                 disabled={localChangeEvery <= 1}
               >-</button>
-              <span className="bg-surface border-t border-b border-gray-600 px-3 py-0 flex items-center justify-center text-sm min-w-[30px]">
+              <span className="bg-white border-t border-b border-gray-200 px-3 py-0 flex items-center justify-center text-sm min-w-[30px] text-text">
                 {localChangeEvery}
               </span>
               <button 
-                className="bg-surface border border-gray-600 px-2 py-0 rounded-r text-sm"
+                className="bg-white border border-gray-200 px-2 py-0 rounded-r text-sm text-text"
                 onClick={increaseChangeEvery}
               >+</button>
             </div>

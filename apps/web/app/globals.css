@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* カスタムフォント設定 */
+@layer base {
+  .font-baloo {
+    font-family: var(--font-baloo-2), cursive;
+  }
+}

@@ -392,9 +392,9 @@ export default function Home() {
   const squareSize = Math.min(containerSize.width, containerSize.height);
   
   return (
-    <div className="flex flex-col items-center h-full w-full overflow-hidden px-4">
-      {/* メインディスプレイエリア */}
-      <div className="w-full max-w-3xl flex-1 flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center h-full w-full overflow-hidden bg-gradient-light">
+      {/* メインディスプレイエリア - パディング上部を追加してヘッダー分のスペースを確保 */}
+      <div className="w-full max-w-3xl flex-1 flex flex-col items-center justify-center pt-16 px-4">
         {/* サイズ計測用のコンテナ - ref追加 */}
         <div 
           ref={containerRef}
@@ -417,7 +417,7 @@ export default function Home() {
                 meter={meter}
                 currentBeat={currentBeat}
                 bpm={bpm}
-                className="transition-all duration-300 w-full h-full"
+                className="transition-all duration-300 w-full h-full text-primary"
               />
             </div>
             
@@ -445,7 +445,7 @@ export default function Home() {
                   beat={currentBeat}
                   meter={meter}
                   changeEvery={changeEvery}
-                  className="text-lg opacity-80"
+                  className="text-lg text-text opacity-80"
                 />
               </div>
             </div>
@@ -453,22 +453,26 @@ export default function Home() {
         </div>
       </div>
       
-      {/* コントロールエリア - 画面下部に固定 */}
-      <ControlsCard 
-        className="w-full max-w-3xl mb-4"
-        bpm={bpm}
-        onBpmChange={setBpm}
-        meter={meter}
-        onMeterChange={setMeter}
-        voice={voiceType}
-        onVoiceChange={setVoiceType}
-        accent={accentEnabled}
-        onAccentChange={setAccentEnabled}
-        changeEvery={changeEvery}
-        onChangeEveryChange={setChangeEvery}
-        selectedNotes={selectedNotes}
-        onSelectedNotesChange={setSelectedNotes}
-      />
+      {/* コントロールエリア用のラッパー - 画面下部に固定し、左右マージンを確保 */}
+      <div className="w-full px-4 mb-4">
+        <div className="w-full max-w-3xl mx-auto">
+          <ControlsCard 
+            className="w-full shadow-card bg-gradient-light"
+            bpm={bpm}
+            onBpmChange={setBpm}
+            meter={meter}
+            onMeterChange={setMeter}
+            voice={voiceType}
+            onVoiceChange={setVoiceType}
+            accent={accentEnabled}
+            onAccentChange={setAccentEnabled}
+            changeEvery={changeEvery}
+            onChangeEveryChange={setChangeEvery}
+            selectedNotes={selectedNotes}
+            onSelectedNotesChange={setSelectedNotes}
+          />
+        </div>
+      </div>
     </div>
   );
 }

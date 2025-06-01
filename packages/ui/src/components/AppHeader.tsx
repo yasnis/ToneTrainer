@@ -28,16 +28,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ className = '' }) => {
   };
 
   return (
-    <header className={`flex items-center justify-between p-4 bg-surface ${className}`}>
+    <header className={`flex items-center justify-between p-4 pt-6 ${className}`}>
       {/* 左側のスペースを確保 */}
       <div className="w-7"></div>
       
-      {/* ロゴ画像を中央に配置 */}
+      {/* ロゴ画像を中央に配置 - サイズを大きく */}
       <div className="flex-grow flex justify-center">
         <img 
           src="/images/logo.svg" 
           alt="Tone Trainer Logo" 
-          className="h-8 w-auto"
+          className="h-10 w-auto"
         />
       </div>
       

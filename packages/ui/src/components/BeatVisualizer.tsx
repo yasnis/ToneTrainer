@@ -66,19 +66,19 @@ export const BeatVisualizer: React.FC<BeatVisualizerProps> = ({
     <div className={`relative ${className}`}>
       {/* 外側のリング - 常に表示 */}
       <div 
-        className={`w-full  h-full  rounded-full border-2 border-gray-600 
+        className={`w-full h-full rounded-full border-2 border-text border-opacity-30
                    flex items-center justify-center transition-all duration-300`}
       >
         {/* パルスリング - アニメーションするリング */}
         <div 
-          className={`absolute inset-0 w-full  h-full rounded-full border-2
+          className={`absolute inset-0 w-full h-full rounded-full border-2
                      transition-all duration-300
                      ${isPulsing ? 'border-primary scale-95 opacity-80' : 'border-primary scale-100 opacity-0'}`}
         />
         
         {/* 最初の拍を強調するリング - 現在が最初の拍の場合に表示 */}
         <div 
-          className={`absolute inset-0 w-full  h-full rounded-full border-4
+          className={`absolute inset-0 w-full h-full rounded-full border-4
                      transition-all duration-300
                      ${currentBeat === 1 && isPulsing ? 'border-primary scale-95 opacity-50' : 'border-primary scale-100 opacity-0'}`}
         />

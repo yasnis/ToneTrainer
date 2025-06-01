@@ -138,25 +138,37 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
         className="flex flex-col items-center justify-center z-10"
         onClick={onTap}
       >
-        {/* 現在の音名表示 */}
+        {/* 現在の音名表示 - Baloo 2フォントを適用（400ウェイト） */}
         <div className="flex items-baseline">
-          <span className={`${fontSizeClass} font-bold tracking-tighter`}>
+          <span 
+            className={`${fontSizeClass} font-normal tracking-tighter text-textDark font-baloo`}
+            style={{ fontFamily: "var(--font-baloo-2), cursive", fontWeight: 400 }}
+          >
             {currentRoot}
           </span>
           {currentChordType && (
-            <span className={`${chordTypeSizeClass} font-medium ml-1 text-gray-400`}>
+            <span 
+              className={`${chordTypeSizeClass} font-normal ml-1 text-text font-baloo`}
+              style={{ fontFamily: "var(--font-baloo-2), cursive", fontWeight: 400 }}
+            >
               {currentChordType}
             </span>
           )}
         </div>
 
-        {/* 次の音名表示（showNextNoteがtrueの場合のみ表示） */}
+        {/* 次の音名表示（showNextNoteがtrueの場合のみ表示） - Baloo 2フォントを適用（400ウェイト） */}
         {showNextNote && nextNote && (
           <div className="mt-1 flex items-baseline">
-            <span className={`${nextNoteSizeClass} font-medium flex items-baseline tracking-tighter`}>
+            <span 
+              className={`${nextNoteSizeClass} font-normal flex items-baseline tracking-tighter text-text font-baloo`}
+              style={{ fontFamily: "var(--font-baloo-2), cursive", fontWeight: 400 }}
+            >
               {nextRoot}
               {nextChordType && (
-                <span className="text-xl ml-0.5 text-gray-400">
+                <span 
+                  className="text-xl ml-0.5 text-text opacity-70 font-baloo"
+                  style={{ fontFamily: "var(--font-baloo-2), cursive", fontWeight: 400 }}
+                >
                   {nextChordType}
                 </span>
               )}
@@ -165,7 +177,7 @@ export const NoteDisplay: React.FC<NoteDisplayProps> = ({
         )}
 
         {/* ヒント表示 - より小さく、透明度を上げて控えめに */}
-        <div className={`${hintSizeClass} text-gray-400 opacity-60 mt-1`}>
+        <div className={`${hintSizeClass} text-text opacity-60 mt-1`}>
           {isPlaying ? 'Tap to Pause' : 'Tap to Start'}
         </div>
       </div>
