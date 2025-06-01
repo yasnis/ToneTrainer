@@ -29,10 +29,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ className = '' }) => {
 
   return (
     <header className={`flex items-center justify-between p-4 bg-surface ${className}`}>
-      <div className="flex items-center">
-        
-        {/* アプリケーションタイトル */}
-        <h1 className="text-xl font-bold text-text">Random Tone Trainer</h1>
+      {/* 左側のスペースを確保 */}
+      <div className="w-7"></div>
+      
+      {/* ロゴ画像を中央に配置 */}
+      <div className="flex-grow flex justify-center">
+        <img 
+          src="/images/logo.svg" 
+          alt="Tone Trainer Logo" 
+          className="h-8 w-auto"
+        />
       </div>
       
       {/* Buy me a coffee リンク */}
