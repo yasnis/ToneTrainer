@@ -1,3 +1,6 @@
+
+![Tone Trainer Logo](apps/web/public/images/logo.svg)
+
 # Tone Trainer
 
 > *音符を覚え、完璧なタイミングを維持する*  
@@ -7,7 +10,6 @@
 
 Tone Trainerは、メトロノームに同期してランダムな音符を表示することで、ミュージシャンがフレットボード上の音符名をマスターするのを支援します。ユーザーは音符が変わる前に、表示された音符を自分の楽器で合わせます。BPMを上げることで、速さと自信を構築できます。
 
-![Tone Trainer Logo](apps/web/public/images/logo.svg)
 
 ## 機能
 
