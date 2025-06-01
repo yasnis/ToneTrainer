@@ -46,7 +46,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ className = '' }) => {
         href="https://buymeacoffee.com/sinsay" 
         target="_blank" 
         rel="noopener noreferrer"
-        className="flex items-center hover:opacity-80 transition-opacity"
+        className="flex items-center hover:opacity-80 transition-opacity mr-2"
         title="Buy me a coffee"
         onClick={handleBuyMeCoffeeClick}
       >
