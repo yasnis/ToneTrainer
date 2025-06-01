@@ -1,4 +1,3 @@
-
 ![Tone Trainer Logo](apps/web/public/images/logo.svg)
 
 # Tone Trainer
@@ -19,13 +18,14 @@ Tone Trainerは、メトロノームに同期してランダムな音符を表�
 - **ビート可視化**: 脈動するリングと拍位置表示（"M 2 | B 3"）
 - **設定と音符プール編集**: インラインの選択音符サマリー（編集ボタン付き）、音符セレクターモーダル（3×4のトグルグリッド）
 - **永続化とPWA**: 設定はLocalStorage/AsyncStorageに保存、オフラインインストール可能なPWA
+- **コード対応**: 単音だけでなく、さまざまなタイプのコードも練習可能（maj7, 7, m7, m7(b5), dim7）
 
 ## 開始方法
 
 ### 前提条件
 
-- Node.js (LTS推奨)
-- Yarn パッケージマネージャー
+- Node.js (v18 LTS以上推奨)
+- Yarn パッケージマネージャー (v1.22以上)
 
 ### インストール
 
@@ -58,6 +58,22 @@ yarn build:web
 yarn build:mobile
 ```
 
+## デプロイ
+
+### Vercelへのデプロイ
+
+Vercelにデプロイする際は、以下の設定が必要です：
+
+1. ルートディレクトリとして`apps/web`を指定
+2. フレームワークプリセットとして「Next.js」を選択
+3. 環境変数を必要に応じて設定
+
+```bash
+# Vercel CLIを使用してデプロイする場合
+cd apps/web
+vercel
+```
+
 ## プロジェクト構造
 
 ```
@@ -76,10 +92,10 @@ tone-trainer/
 
 | レイヤー | 選択技術 | 理由 |
 |---------|----------|------|
-| UI＆ルーティング | Expo Router (React Native Web) | 単一のTypeScriptコードベース |
+| UI＆ルーティング | Next.js 14 (Web) / Expo Router (Mobile) | 単一のTypeScriptコードベース |
 | スタイリング | NativeWind (Tailwind) | WebとNativeで共有可能なクラス |
 | 状態管理 | Zustand | 軽量なグローバルストア |
-| オーディオ | Tone.js / Expo-AV | 低レイテンシー; `IAudioEngine`で抽象化 |
+| オーディオ | Web Audio API / Expo-AV | 低レイテンシー; `IAudioEngine`で抽象化 |
 | グラフィックス | react-native-skia (+ webシム) | GPU駆動のパルスリング |
 | テスト | Vitest, Testing Library, Cypress | ユニット/レンダリング/E2Eテスト |
 | CI/CD | GitHub Actions + Vercel + Expo EAS | 自動プレビューとビルド |
@@ -88,20 +104,48 @@ tone-trainer/
 ## アーキテクチャ
 
 ```
-UI (Expo Router)
-  ├─ CurrentNote   (タップでスタート/一時停止)
+UI (Next.js / Expo Router)
+  ├─ NoteDisplay     (タップでスタート/一時停止)
   ├─ BeatVisualizer + BeatPositionDisplay
-  └─ ControlsCard  (スライダー、ピッカー、サマリー)
+  └─ ControlsCard    (スライダー、ピッカー、サマリー)
           │
           ▼ 購読
    settingsStore (Zustand)
           │ 注入
           ▼
-   useMetronome() ── onBeat/onMeasure
+   BeatManager + SimpleMetronome ── onBeat/onMeasure
           │
           ▼
-   IAudioEngine (Tone / Expo-AV)
+   Web Audio API / Expo-AV
 ```
+
+## 互換性に関する注意
+
+### Next.js 14.2.29以降
+
+Next.js 14.2.29以降では、`useSearchParams()`などのクライアントフックを使用するコンポーネントは必ず`<Suspense>`でラップする必要があります。このプロジェクトでは以下の方法で対応しています：
+
+- Server Component（`page.tsx`、`not-found.tsx`）では、Client Componentを別ファイルに分離
+- すべてのClient Componentを`<Suspense>`でラップ
+- 必要に応じて`dynamic = 'force-dynamic'`を設定
+
+## トラブルシューティング
+
+### ビルドエラー
+
+**エラー: `useSearchParams() should be wrapped in a suspense boundary`**
+
+対処法: 該当するページコンポーネントがServer Componentであることを確認し、Client Componentを`<Suspense>`でラップします。詳細は「互換性に関する注意」セクションを参照してください。
+
+**エラー: `'X' is declared but its value is never read`**
+
+対処法: 未使用の変数やインポートを削除します。
+
+### Web Audioの問題
+
+**エラー: ユーザーインタラクション前にAudioContextが開始できない**
+
+対処法: AudioContextの初期化は必ずユーザーアクションのハンドラー内（例：ボタンクリック）で行います。
 
 ## 貢献
 
