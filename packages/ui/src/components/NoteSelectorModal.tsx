@@ -51,26 +51,6 @@ const splitChordName = (chordName: string): { root: string; type: string | null 
 };
 
 /**
- * 音名を分解して、基本音と修飾子（#やb）に分ける
- * 例: "C#" -> { base: "C", modifier: "#" }
- */
-const splitNoteName = (name: string): { base: string; modifier: string | null } => {
-  // #やbを含む場合
-  if (name.includes('#') || name.includes('b')) {
-    return {
-      base: name.charAt(0),
-      modifier: name.substring(1)
-    };
-  }
-  
-  // 修飾子なしの場合
-  return {
-    base: name,
-    modifier: null
-  };
-};
-
-/**
  * コード名を表示するコンポーネント
  * ルート音とコードタイプを別々のスタイルで表示
  */
@@ -240,12 +220,6 @@ export const NoteSelectorModal: React.FC<NoteSelectorModalProps> = ({
   // キャンセル時は元の選択に戻す
   const handleCancel = () => {
     onClose();
-  };
-
-  // コードが選択されているかチェック
-  const isChordSelected = (root: string, type: string): boolean => {
-    const chordName = getChordName(root, type);
-    return selectedChords.includes(chordName);
   };
 
   // モーダルが閉じている場合は何も表示しない

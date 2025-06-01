@@ -65,26 +65,6 @@ const splitChordName = (noteName: string): { root: string; chordType: string | n
 };
 
 /**
- * 音名を分解して、基本音と修飾子（#やb）に分ける
- * 例: "C#" -> { base: "C", modifier: "#" }
- */
-const splitNoteName = (name: string): { base: string; modifier: string | null } => {
-  // #やbを含む場合
-  if (name.includes('#') || name.includes('b')) {
-    return {
-      base: name.charAt(0),
-      modifier: name.substring(1)
-    };
-  }
-  
-  // 修飾子なしの場合
-  return {
-    base: name,
-    modifier: null
-  };
-};
-
-/**
  * 音名を表示するコンポーネント
  * 現在の音名と次の音名（オプション）を表示します
  */

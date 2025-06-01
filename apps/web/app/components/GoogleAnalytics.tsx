@@ -7,6 +7,18 @@ import { usePathname, useSearchParams } from 'next/navigation';
 // Google Analytics 測定ID
 const GA_MEASUREMENT_ID = 'G-CXPTJZ0KFL'; // ここに実際のGA4測定IDを入力してください
 
+// gtagのグローバル型定義を追加
+declare global {
+  interface Window {
+    gtag: (
+      command: 'config' | 'event' | 'js',
+      targetId: string | Date,
+      config?: Record<string, any>
+    ) => void;
+    dataLayer: any[];
+  }
+}
+
 export default function GoogleAnalytics() {
   const pathname = usePathname();
   const searchParams = useSearchParams();

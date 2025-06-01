@@ -9,11 +9,6 @@ interface BeatVisualizerProps {
   isPlaying?: boolean;
   
   /**
-   * 現在の拍子 (例: [4, 4] は 4/4拍子)
-   */
-  meter?: [number, number];
-  
-  /**
    * 現在の拍子位置 (1-indexed)
    */
   currentBeat?: number;
@@ -34,7 +29,6 @@ interface BeatVisualizerProps {
  */
 export const BeatVisualizer: React.FC<BeatVisualizerProps> = ({
   isPlaying = false,
-  meter = [4, 4],
   currentBeat = 1,
   bpm = 120,
   className = '',

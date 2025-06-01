@@ -1,7 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text } from 'react-native';
+import { styled } from 'nativewind';
+
+// NativeWindでスタイル付けするためにコンポーネントをラップ
+const StyledPressable = styled(Pressable);
+const StyledText = styled(Text);
 
 type ButtonProps = {
   onPress: () => void;
@@ -44,7 +49,7 @@ export const Button: React.FC<ButtonProps> = ({
   } ${sizeClasses[size]}`;
 
   return (
-    <Pressable
+    <StyledPressable
       onPress={onPress}
       disabled={disabled}
       className={buttonClasses}
@@ -52,8 +57,8 @@ export const Button: React.FC<ButtonProps> = ({
         pressed && { opacity: 0.8 },
       ]}
     >
-      <Text className={textClasses}>{title}</Text>
-    </Pressable>
+      <StyledText className={textClasses}>{title}</StyledText>
+    </StyledPressable>
   );
 };
 

@@ -31,8 +31,8 @@ Tone Trainerは、メトロノームに同期してランダムな音符を表�
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/your-username/tone-trainer.git
-cd tone-trainer
+git clone https://github.com/yasnis/ToneTrainer.git
+cd ToneTrainer
 
 # 依存関係をインストール
 yarn install

@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { styled } from 'nativewind';
+
+// NativeWindでスタイル付けするためにコンポーネントをラップ
+const StyledView = styled(View);
+const StyledText = styled(Text);
+const StyledPressable = styled(Pressable);
 
 type TempoControlProps = {
   tempo: number;
@@ -30,27 +36,27 @@ export const TempoControl: React.FC<TempoControlProps> = ({
   };
 
   return (
-    <View className="flex flex-row items-center gap-4">
-      <Pressable
+    <StyledView className="flex flex-row items-center gap-4">
+      <StyledPressable
         onPress={decreaseTempo}
         className="w-12 h-12 bg-surface rounded-full flex items-center justify-center"
       >
-        <Text className="text-text text-2xl font-bold">-</Text>
-      </Pressable>
+        <StyledText className="text-text text-2xl font-bold">-</StyledText>
+      </StyledPressable>
       
-      <View className="flex items-center">
-        <Text className="text-text text-xl font-medium">テンポ</Text>
-        <Text className="text-text text-3xl font-bold">{tempo}</Text>
-        <Text className="text-text text-sm">BPM</Text>
-      </View>
+      <StyledView className="flex items-center">
+        <StyledText className="text-text text-xl font-medium">テンポ</StyledText>
+        <StyledText className="text-text text-3xl font-bold">{tempo}</StyledText>
+        <StyledText className="text-text text-sm">BPM</StyledText>
+      </StyledView>
       
-      <Pressable
+      <StyledPressable
         onPress={increaseTempo}
         className="w-12 h-12 bg-surface rounded-full flex items-center justify-center"
       >
-        <Text className="text-text text-2xl font-bold">+</Text>
-      </Pressable>
-    </View>
+        <StyledText className="text-text text-2xl font-bold">+</StyledText>
+      </StyledPressable>
+    </StyledView>
   );
 };
 
