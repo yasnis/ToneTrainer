@@ -37,17 +37,19 @@ export const EmblaCarousel = forwardRef<EmblaCarouselHandle, EmblaCarouselProps>
         let startX = 0;
         let currentX = 0;
         
-        const handleMouseDown = (e: MouseEvent) => {
+        const handleMouseDown = (e: Event) => {
+          const mouseEvent = e as MouseEvent;
           isDragging = true;
-          startX = e.clientX;
+          startX = mouseEvent.clientX;
           currentX = startX;
-          container.classList.add('grabbing');
+          (container as HTMLElement).classList.add('grabbing');
           document.body.style.userSelect = 'none'; // ドラッグ中のテキスト選択を防止
         };
         
-        const handleMouseMove = (e: MouseEvent) => {
+        const handleMouseMove = (e: Event) => {
           if (!isDragging) return;
-          currentX = e.clientX;
+          const mouseEvent = e as MouseEvent;
+          currentX = mouseEvent.clientX;
         };
         
         const handleMouseUp = () => {
@@ -75,7 +77,7 @@ export const EmblaCarousel = forwardRef<EmblaCarouselHandle, EmblaCarouselProps>
           }
           
           isDragging = false;
-          container.classList.remove('grabbing');
+          (container as HTMLElement).classList.remove('grabbing');
           document.body.style.userSelect = '';
         };
         

@@ -56,6 +56,3 @@ export const useAppStore = create<AppState>((set) => ({
   incrementTotalCount: () => set((state) => ({ totalCount: state.totalCount + 1 })),
   resetStats: () => set({ correctCount: 0, totalCount: 0 }),
 }));
-
-// ストアのエクスポート
-export * from './useAppStore';

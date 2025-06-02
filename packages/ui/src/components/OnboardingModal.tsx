@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, StyleSheet, useWindowDimensions, Platform, Image } from 'react-native';
+import { View, Text, Pressable, StyleSheet, useWindowDimensions, Platform, Image, ImageStyle, ViewStyle, TextStyle } from 'react-native';
 import { Dialog } from './Dialog';
 import { EmblaCarousel, EmblaCarouselHandle } from './EmblaCarousel';
 import { getAssetPath } from '@tone-trainer/core/src/utils';
+import { styled } from 'nativewind';
+
+// NativeWindでPressableをラップしたコンポーネント
+const DotPressable = styled(Pressable);
 
 type OnboardingModalProps = {
   open: boolean;
@@ -15,18 +19,14 @@ type OnboardingModalProps = {
 
 type SlideContent = {
   key: string;
-  en: [
-    {
-      title: string;
-      content: string;
-    }
-  ],
-  ja: [
-    {
-      title: string;
-      content: string;
-    }
-  ],
+  en: {
+    title: string;
+    content: string;
+  }[];
+  ja: {
+    title: string;
+    content: string;
+  }[];
 };
 
 const slides: SlideContent[] = [
@@ -79,8 +79,8 @@ const slides: SlideContent[] = [
 ];
 
 // Webプラットフォーム用のスタイル拡張
-const WebModalGradient = Platform.OS === 'web' ? 
-  ({ children, style }: { children: React.ReactNode, style?: any }) => (
+const WebModalGradient = Platform.OS === 'web' 
+  ? ({ children, style }: { children?: React.ReactNode, style?: React.CSSProperties }) => (
     <div 
       style={{
         background: 'linear-gradient(to bottom, #ffffff, #f0f0f2)',
@@ -92,9 +92,13 @@ const WebModalGradient = Platform.OS === 'web' ?
         top: 0,
         left: 0,
         zIndex: -1,
+        ...style,
       }}
-    />
-  ) : () => null;
+    >
+      {children}
+    </div>
+  ) 
+  : ({ children }: { children?: React.ReactNode }) => <>{children}</>;
 
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   open,
@@ -183,73 +187,168 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <View style={[styles.modalContainer, { width: modalWidth }]}>
-        <WebModalGradient />
-        <View style={styles.contentContainer}>
-          {/* ロゴ */}
-          <View style={styles.logoContainer}>
-            <Image 
-              source={{ uri: getAssetPath('/images/logo.svg') }}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            
-            {/* 言語切り替え - ロゴの下に配置 */}
-            <View style={styles.langToggle}>
-              <Pressable
-                style={[styles.langButton, lang === 'en' && styles.activeLang]}
-                onPress={() => onLangChange('en')}
-              >
-                <Text style={styles.langText}>EN</Text>
-              </Pressable>
-              <Text style={styles.langSeparator}>·</Text>
-              <Pressable
-                style={[styles.langButton, lang === 'ja' && styles.activeLang]}
-                onPress={() => onLangChange('ja')}
-              >
-                <Text style={styles.langText}>JA</Text>
-              </Pressable>
+      {Platform.OS === 'web' ? (
+        // Web環境: divでラップしてWeb専用スタイルを適用
+        <div style={containerWeb}>
+          <View style={[styles.modalContainer, { width: modalWidth }]}>
+            <WebModalGradient />
+            <View style={styles.contentContainer}>
+              {/* ロゴ */}
+              <View style={styles.logoContainer}>
+                <Image 
+                  source={{ uri: getAssetPath('/images/logo.svg') }}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+                
+                {/* 言語切り替え - ロゴの下に配置 */}
+                <View style={styles.langToggle}>
+                  <Pressable
+                    style={[styles.langButton, lang === 'en' && styles.activeLang]}
+                    onPress={() => onLangChange('en')}
+                  >
+                    <Text style={styles.langText}>EN</Text>
+                  </Pressable>
+                  <Text style={styles.langSeparator}>·</Text>
+                  <Pressable
+                    style={[styles.langButton, lang === 'ja' && styles.activeLang]}
+                    onPress={() => onLangChange('ja')}
+                  >
+                    <Text style={styles.langText}>JA</Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              {/* スライドカルーセル */}
+              <View style={styles.carouselContainer}>
+                <EmblaCarousel 
+                  slides={slideContents}
+                  onSlideChange={handleSlideChange}
+                  ref={carouselRef} // 参照を渡す
+                />
+              </View>
+
+              {/* ドットインジケーター - クリック/タップ可能に */}
+              <View style={styles.dotsContainer}>
+                {slides.map((_, index) => (
+                  <DotPressable
+                    key={index}
+                    style={[
+                      styles.dot,
+                      index === currentSlide && styles.activeDot,
+                    ]}
+                    onPress={() => {
+                      changeSlide(index);
+                    }}
+                    className="dot-indicator"
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* 閉じるボタン */}
+            <Pressable style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </Pressable>
+          </View>
+        </div>
+      ) : (
+        // ネイティブ環境: ViewStyleのみを使用
+        <View 
+          style={[
+            styles.modalContainer, 
+            { width: modalWidth },
+            styles.containerNative
+          ]}
+        >
+          <View style={styles.contentContainer}>
+            {/* ロゴ */}
+            <View style={styles.logoContainer}>
+              <Image 
+                source={{ uri: getAssetPath('/images/logo.svg') }}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              
+              {/* 言語切り替え - ロゴの下に配置 */}
+              <View style={styles.langToggle}>
+                <Pressable
+                  style={[styles.langButton, lang === 'en' && styles.activeLang]}
+                  onPress={() => onLangChange('en')}
+                >
+                  <Text style={styles.langText}>EN</Text>
+                </Pressable>
+                <Text style={styles.langSeparator}>·</Text>
+                <Pressable
+                  style={[styles.langButton, lang === 'ja' && styles.activeLang]}
+                  onPress={() => onLangChange('ja')}
+                >
+                  <Text style={styles.langText}>JA</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* スライドカルーセル */}
+            <View style={styles.carouselContainer}>
+              <EmblaCarousel 
+                slides={slideContents}
+                onSlideChange={handleSlideChange}
+                ref={carouselRef} // 参照を渡す
+              />
+            </View>
+
+            {/* ドットインジケーター - クリック/タップ可能に */}
+            <View style={styles.dotsContainer}>
+              {slides.map((_, index) => (
+                <Pressable
+                  key={index}
+                  style={[
+                    styles.dot,
+                    index === currentSlide && styles.activeDot,
+                  ]}
+                  onPress={() => {
+                    changeSlide(index);
+                  }}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                />
+              ))}
             </View>
           </View>
 
-          {/* スライドカルーセル */}
-          <View style={styles.carouselContainer}>
-            <EmblaCarousel 
-              slides={slideContents}
-              onSlideChange={handleSlideChange}
-              ref={carouselRef} // 参照を渡す
-            />
-          </View>
-
-          {/* ドットインジケーター - クリック/タップ可能に */}
-          <View style={styles.dotsContainer}>
-            {slides.map((_, index) => (
-              <Pressable
-                key={index}
-                style={[
-                  styles.dot,
-                  index === currentSlide && styles.activeDot,
-                ]}
-                onPress={() => {
-                  changeSlide(index);
-                }}
-                {...(Platform.OS === 'web' ? { className: "dot-indicator" } : {})}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              />
-            ))}
-          </View>
+          {/* 閉じるボタン */}
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </Pressable>
         </View>
-
-        {/* 閉じるボタン */}
-        <Pressable style={styles.closeButton} onPress={onClose}>
-          <Text style={styles.closeButtonText}>×</Text>
-        </Pressable>
-      </View>
+      )}
     </Dialog>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = StyleSheet.create<{
+  container: ViewStyle;
+  containerNative: ViewStyle;
+  contentContainer: ViewStyle;
+  logoContainer: ViewStyle;
+  logo: ImageStyle;
+  langToggle: ViewStyle;
+  langButton: ViewStyle;
+  activeLang: ViewStyle;
+  langText: TextStyle;
+  langSeparator: TextStyle;
+  carouselContainer: ViewStyle;
+  slideContainer: ViewStyle;
+  sectionContainer: ViewStyle;
+  slideTitle: TextStyle;
+  slideContent: TextStyle;
+  dotsContainer: ViewStyle;
+  dot: ViewStyle;
+  activeDot: ViewStyle;
+  closeButton: ViewStyle;
+  closeButtonText: TextStyle;
+  modalContainer: ViewStyle;
+}>({
   container: {
     backgroundColor: '#fff',
     borderRadius: 16,
@@ -258,10 +357,6 @@ const styles = StyleSheet.create({
     margin: 'auto',
     position: 'relative',
     overflow: 'hidden',
-  },
-  containerWeb: {
-    background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
   },
   containerNative: {
     shadowColor: '#000',
@@ -285,6 +380,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 150,
     height: 50,
+    overflow: 'hidden', // overflow: 'scroll'ではなく'hidden'または'visible'に変更
   },
   langToggle: {
     flexDirection: 'row',
@@ -373,17 +469,11 @@ const styles = StyleSheet.create({
     margin: 'auto',
     position: 'relative',
     overflow: 'hidden',
-    ...(Platform.OS === 'web'
-      ? {
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        }
-      : {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.08,
-          shadowRadius: 20,
-          elevation: 3,
-        }
-    ),
   },
 });
+
+// Web専用スタイルはStyleSheetから分離
+const containerWeb: React.CSSProperties = {
+  background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
+  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+};
