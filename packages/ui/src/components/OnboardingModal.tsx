@@ -190,8 +190,9 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
       {Platform.OS === 'web' ? (
         // Web環境: divでラップしてWeb専用スタイルを適用
         <div style={containerWeb}>
+          {/* グラデーション背景を外側のdivに直接適用 */}
+          <WebModalGradient />
           <View style={[styles.modalContainer, { width: modalWidth }]}>
-            <WebModalGradient />
             <View style={styles.contentContainer}>
               {/* ロゴ */}
               <View style={styles.logoContainer}>
@@ -353,7 +354,6 @@ const styles = StyleSheet.create<{
     backgroundColor: '#fff',
     borderRadius: 16,
     maxWidth: 500,
-    maxHeight: '95%',
     margin: 'auto',
     position: 'relative',
     overflow: 'hidden',
@@ -465,7 +465,6 @@ const styles = StyleSheet.create<{
     backgroundColor: '#fff',
     borderRadius: 16,
     maxWidth: 500,
-    maxHeight: '95%',
     margin: 'auto',
     position: 'relative',
     overflow: 'hidden',
@@ -476,4 +475,6 @@ const styles = StyleSheet.create<{
 const containerWeb: React.CSSProperties = {
   background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+  borderRadius: '16px', // 角丸を追加
+  overflow: 'hidden'    // 角丸に合わせてオーバーフローを隠す
 };
