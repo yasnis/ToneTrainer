@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { AppHeader } from '@tone-trainer/ui';
 import './globals.css';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import { Baloo_2 } from 'next/font/google';
@@ -34,11 +33,6 @@ export default function RootLayout({
           <main className="h-full overflow-hidden">
             {children}
           </main>
-          
-          {/* ヘッダーをメインコンテンツの上に重ねる（絶対配置） */}
-          <div className="absolute top-0 left-0 right-0 z-10">
-            <AppHeader />
-          </div>
         </div>
       </body>
     </html>

@@ -8,3 +8,19 @@
     font-family: var(--font-baloo-2), cursive;
   }
 }
+
+/* カルーセル関連のスタイル */
+.embla-carousel-container {
+  cursor: grab;
+  overflow: hidden;
+}
+
+.embla-carousel-container.grabbing {
+  cursor: grabbing;
+}
+
+/* タッチデバイスでのタップ時の青い背景を防止 */
+.dot-indicator {
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}

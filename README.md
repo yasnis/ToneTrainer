@@ -2,116 +2,115 @@
 
 # Tone Trainer
 
-> *音符を覚え、完璧なタイミングを維持する*  
-> 弦楽器奏者のためのウェブファースト＆ネイティブ対応練習ツール
+> *Master notes and maintain perfect timing*  
+> A web-first & native-ready practice tool for string instrument players
 
-## 概要
+## Overview
 
-Tone Trainerは、メトロノームに同期してランダムな音符を表示することで、ミュージシャンがフレットボード上の音符名をマスターするのを支援します。ユーザーは音符が変わる前に、表示された音符を自分の楽器で合わせます。BPMを上げることで、速さと自信を構築できます。
+Tone Trainer helps musicians master note names on the fretboard by displaying random notes synchronized to a metronome. Users match the displayed note on their instrument before it changes. By increasing the BPM, players can build speed and confidence.
 
+## Features
 
-## 機能
+- **High Precision Metronome**: BPM 20-240, time signatures (2/4, 3/4, 4/4), togglable accented first beat
+- **Random Note Generator**: Selection from user-defined note pool (≥1 of 12 semitones). No repetition until pool is exhausted
+- **Tap to Start/Pause**: Tap the current note to toggle playback state
+- **Beat Visualization**: Pulsating ring and beat position display ("M 2 | B 3")
+- **Settings & Note Pool Editing**: Inline selected notes summary (with edit button), note selector modal (3×4 toggle grid)
+- **Persistence & PWA**: Settings saved to LocalStorage/AsyncStorage, installable offline PWA
+- **Chord Support**: Practice not just single notes but various chord types (maj7, 7, m7, m7(b5), dim7)
 
-- **高精度メトロノーム**: BPM 20〜240、拍子記号（2/4、3/4、4/4）、アクセント付き第一拍のトグル
-- **ランダム音符生成器**: ユーザー定義の音符プール（12半音のうち≥1）から選択。プールが使い果たされるまで繰り返しなし
-- **タップでスタート/一時停止**: 現在の音符をタップすると再生状態が切り替わります
-- **ビート可視化**: 脈動するリングと拍位置表示（"M 2 | B 3"）
-- **設定と音符プール編集**: インラインの選択音符サマリー（編集ボタン付き）、音符セレクターモーダル（3×4のトグルグリッド）
-- **永続化とPWA**: 設定はLocalStorage/AsyncStorageに保存、オフラインインストール可能なPWA
-- **コード対応**: 単音だけでなく、さまざまなタイプのコードも練習可能（maj7, 7, m7, m7(b5), dim7）
+## Getting Started
 
-## 開始方法
+### Prerequisites
 
-### 前提条件
+- Node.js (v18 LTS or higher recommended)
+- Yarn package manager (v1.22 or higher)
 
-- Node.js (v18 LTS以上推奨)
-- Yarn パッケージマネージャー (v1.22以上)
-
-### インストール
+### Installation
 
 ```bash
-# リポジトリをクローン
+# Clone the repository
 git clone https://github.com/yasnis/ToneTrainer.git
 cd ToneTrainer
 
-# 依存関係をインストール
+# Install dependencies
 yarn install
 ```
 
-### 開発サーバーの起動
+### Running Development Server
 
 ```bash
-# Webアプリを開発モードで実行
+# Run web app in development mode
 yarn dev:web
 
-# モバイルアプリを開発モードで実行
+# Run mobile app in development mode
 yarn dev:mobile
 ```
 
-### ビルド
+### Building
 
 ```bash
-# Webアプリをビルド
+# Build web app
 yarn build:web
 
-# モバイルアプリをビルド
+# Build mobile app
 yarn build:mobile
 ```
 
-## デプロイ
+## Deployment
 
-### Vercelへのデプロイ
+### Deploying to Vercel
 
-Vercelにデプロイする際は、以下の設定が必要です：
+When deploying to Vercel, the following settings are required:
 
-1. ルートディレクトリとして`apps/web`を指定
-2. フレームワークプリセットとして「Next.js」を選択
-3. 環境変数を必要に応じて設定
+1. Specify `apps/web` as the root directory
+2. Select "Next.js" as the framework preset
+3. Configure environment variables as needed
 
 ```bash
-# Vercel CLIを使用してデプロイする場合
+# If deploying using Vercel CLI
 cd apps/web
 vercel
 ```
 
-## プロジェクト構造
+## Project Structure
 
 ```
 tone-trainer/
-├ apps/                  # アプリケーション
-│ ├ mobile/             # Expoモバイルアプリ
-│ └ web/                # Next.jsウェブアプリ
-├ packages/              # 共有パッケージ
-│ ├ core/               # オーディオ、スケジューラー、音符ロジック
-│ ├ ui/                 # 共有Reactコンポーネント
-│ └ config/             # eslint、tailwind、tsconfigs
-└ docs/                 # ドキュメント
+├ apps/                  # Applications
+│ ├ mobile/             # Expo mobile app
+│ └ web/                # Next.js web app
+├ packages/              # Shared packages
+│ ├ core/               # Audio, scheduler, note logic
+│ ├ ui/                 # Shared React components
+│ └ config/             # eslint, tailwind, tsconfigs
+└ docs/                 # Documentation
 ```
 
-## 技術スタック
+## Tech Stack
 
-| レイヤー | 選択技術 | 理由 |
+| Layer | Technology Choice | Rationale |
 |---------|----------|------|
-| UI＆ルーティング | Next.js 14 (Web) / Expo Router (Mobile) | 単一のTypeScriptコードベース |
-| スタイリング | NativeWind (Tailwind) | WebとNativeで共有可能なクラス |
-| 状態管理 | Zustand | 軽量なグローバルストア |
-| オーディオ | Web Audio API / Expo-AV | 低レイテンシー; `IAudioEngine`で抽象化 |
-| グラフィックス | react-native-skia (+ webシム) | GPU駆動のパルスリング |
-| テスト | Vitest, Testing Library, Cypress | ユニット/レンダリング/E2Eテスト |
-| CI/CD | GitHub Actions + Vercel + Expo EAS | 自動プレビューとビルド |
-| リポジトリ | Turborepo + Yarn PnP | 共有`core`、`ui`、`config`パッケージ |
+| UI & Routing | Next.js 14 (Web) / Expo Router (Mobile) | Single TypeScript codebase |
+| Styling | NativeWind (Tailwind) | Shareable classes across Web and Native |
+| State Management | Zustand | Lightweight global store |
+| Audio | Web Audio API / Expo-AV | Low latency; abstracted with `IAudioEngine` |
+| Graphics | react-native-skia (+ web shim) | GPU-powered pulse ring |
+| Testing | Vitest, Testing Library, Cypress | Unit/Rendering/E2E tests |
+| CI/CD | GitHub Actions + Vercel + Expo EAS | Automated previews and builds |
+| Repository | Turborepo + Yarn PnP | Shared `core`, `ui`, `config` packages |
 
-## アーキテクチャ
+## Architecture
 
 ```
 UI (Next.js / Expo Router)
-  ├─ NoteDisplay     (タップでスタート/一時停止)
+  ├─ NoteDisplay     (tap to start/pause)
   ├─ BeatVisualizer + BeatPositionDisplay
-  └─ ControlsCard    (スライダー、ピッカー、サマリー)
+  └─ ControlsCard    (sliders, pickers, summary)
           │
-          ▼ 購読
+          ▼ subscribes
    settingsStore (Zustand)
-          │ 注入
+          │ injects
           ▼
    BeatManager + SimpleMetronome ── onBeat/onMeasure
           │
@@ -119,49 +118,49 @@ UI (Next.js / Expo Router)
    Web Audio API / Expo-AV
 ```
 
-## 互換性に関する注意
+## Compatibility Notes
 
-### Next.js 14.2.29以降
+### Next.js 14.2.29 and later
 
-Next.js 14.2.29以降では、`useSearchParams()`などのクライアントフックを使用するコンポーネントは必ず`<Suspense>`でラップする必要があります。このプロジェクトでは以下の方法で対応しています：
+In Next.js 14.2.29 and later, components using client hooks like `useSearchParams()` must be wrapped in a `<Suspense>` boundary. This project addresses this by:
 
-- Server Component（`page.tsx`、`not-found.tsx`）では、Client Componentを別ファイルに分離
-- すべてのClient Componentを`<Suspense>`でラップ
-- 必要に応じて`dynamic = 'force-dynamic'`を設定
+- Separating Client Components into their own files from Server Components (`page.tsx`, `not-found.tsx`)
+- Wrapping all Client Components with `<Suspense>`
+- Setting `dynamic = 'force-dynamic'` where necessary
 
-## トラブルシューティング
+## Troubleshooting
 
-### ビルドエラー
+### Build Errors
 
-**エラー: `useSearchParams() should be wrapped in a suspense boundary`**
+**Error: `useSearchParams() should be wrapped in a suspense boundary`**
 
-対処法: 該当するページコンポーネントがServer Componentであることを確認し、Client Componentを`<Suspense>`でラップします。詳細は「互換性に関する注意」セクションを参照してください。
+Solution: Ensure the page component is a Server Component and wrap Client Components with `<Suspense>`. See the "Compatibility Notes" section for details.
 
-**エラー: `'X' is declared but its value is never read`**
+**Error: `'X' is declared but its value is never read`**
 
-対処法: 未使用の変数やインポートを削除します。
+Solution: Remove unused variables or imports.
 
-### Web Audioの問題
+### Web Audio Issues
 
-**エラー: ユーザーインタラクション前にAudioContextが開始できない**
+**Error: Cannot start AudioContext before user interaction**
 
-対処法: AudioContextの初期化は必ずユーザーアクションのハンドラー内（例：ボタンクリック）で行います。
+Solution: Always initialize AudioContext inside user action handlers (e.g., button click).
 
-## 貢献
+## Contributing
 
-1. このリポジトリをフォーク
-2. 機能ブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m 'Add some amazing feature'`)
-4. ブランチにプッシュ (`git push origin feature/amazing-feature`)
-5. Pull Requestを開く
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## ライセンス
+## License
 
 MIT
 
-## お問い合わせ
+## Contact
 
-質問や提案がある場合は、[issues](https://github.com/your-username/tone-trainer/issues)を開いてください。
+If you have questions or suggestions, please open an [issue](https://github.com/yasnis/ToneTrainer/issues).
 
 ---
 

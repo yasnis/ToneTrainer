@@ -10,3 +10,6 @@ export * from './BeatVisualizer';
 export * from './BeatPositionDisplay';
 export * from './NextNote';
 export * from './NoteSelectorModal';
+export * from './Dialog';
+export * from './EmblaCarousel';
+export * from './OnboardingModal';

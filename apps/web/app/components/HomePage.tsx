@@ -1,6 +1,6 @@
 'use client';
 
-import { ControlsCard, NoteDisplay, BeatVisualizer, BeatPositionDisplay } from '@tone-trainer/ui';
+import { ControlsCard, NoteDisplay, BeatVisualizer, BeatPositionDisplay, AppHeader, OnboardingModal } from '@tone-trainer/ui';
 import { BeatManager } from '@tone-trainer/core/src/utils/BeatManager';
 import { useState, useEffect, useRef } from 'react';
 
@@ -367,87 +367,138 @@ export default function HomePage() {
   // 利用可能な幅と高さの小さい方を使って正方形のサイズを計算
   const squareSize = Math.min(containerSize.width, containerSize.height);
   
+  // オンボーディングモーダル関連の状態
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [onboardingLang, setOnboardingLang] = useState<'en' | 'ja'>('ja');
+  
+  // 初回表示のチェック（ローカルストレージから読み込み）
+  useEffect(() => {
+    // ブラウザ環境でのみ実行
+    if (typeof window !== 'undefined') {
+      // ローカルストレージから表示済みかどうかを確認
+      const hasSeenOnboarding = localStorage.getItem('tt_onb_v1') === '1';
+      
+      // まだ表示されていない場合は表示
+      if (!hasSeenOnboarding) {
+        setOnboardingOpen(true);
+      }
+    }
+  }, []);
+  
+  // オンボーディングモーダルを閉じる処理
+  const handleCloseOnboarding = () => {
+    // ローカルストレージに表示済みフラグを保存
+    localStorage.setItem('tt_onb_v1', '1');
+    setOnboardingOpen(false);
+    
+    // モーダルを閉じた後にメトロノームを開始
+    if (!isPlaying) {
+      togglePlayback();
+    }
+  };
+  
+  // ヘルプボタンがクリックされたときの処理
+  const handleHelpClick = () => {
+    setOnboardingOpen(true);
+  };
+  
   return (
-    <div className="flex flex-col items-center h-full w-full overflow-hidden bg-gradient-light">
-      {/* メインディスプレイエリア - パディング上部を追加してヘッダー分のスペースを確保 */}
-      <div className="w-full max-w-3xl flex-1 flex flex-col items-center justify-center pt-16 px-4">
-        {/* サイズ計測用のコンテナ - ref追加 */}
-        <div 
-          ref={containerRef}
-          className="relative w-full h-full flex items-center justify-center"
-        >
-          {/* 正方形のコンテナ - 計算したサイズに基づいて調整 */}
+    <>
+      {/* メインコンテンツを全画面表示に */}
+      <div className="flex flex-col items-center h-full w-full overflow-hidden bg-gradient-light">
+        {/* メインディスプレイエリア - ヘッダーのパディングなし */}
+        <div className="w-full max-w-3xl flex-1 flex flex-col items-center justify-center px-4">
+          {/* サイズ計測用のコンテナ - ref追加 */}
           <div 
-            className="relative flex items-center justify-center"
-            style={{ 
-              width: squareSize ? `${squareSize}px` : '100%', 
-              height: squareSize ? `${squareSize}px` : '100%',
-              maxWidth: '90vmin',
-              maxHeight: '90vmin'
-            }}
+            ref={containerRef}
+            className="relative w-full h-full flex items-center justify-center"
           >
-            {/* BeatVisualizer - 正方形コンテナに合わせる */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <BeatVisualizer 
-                isPlaying={isPlaying}
-                currentBeat={currentBeat}
-                bpm={bpm}
-                className="transition-all duration-300 w-full h-full text-primary"
-              />
-            </div>
-            
-            {/* 中央コンテンツ - BeatVisualizerの上に配置 */}
+            {/* 正方形のコンテナ - 計算したサイズに基づいて調整 */}
             <div 
-              className="relative w-full h-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300"
-              onClick={togglePlayback}
+              className="relative flex items-center justify-center"
+              style={{ 
+                width: squareSize ? `${squareSize}px` : '100%', 
+                height: squareSize ? `${squareSize}px` : '100%',
+                maxWidth: '90vmin',
+                maxHeight: '90vmin'
+              }}
             >
-              {/* 統合したNoteDisplayコンポーネント - CurrentNoteとNextNoteを置き換え */}
-              <div className="flex flex-col items-center justify-center">
-                <NoteDisplay 
-                  currentNote={currentNote}
-                  nextNote={nextNote}
+              {/* BeatVisualizer - 正方形コンテナに合わせる */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <BeatVisualizer 
                   isPlaying={isPlaying}
-                  onTap={togglePlayback}
-                  size="xlarge"
-                  showNextNote={true}
+                  currentBeat={currentBeat}
+                  bpm={bpm}
+                  className="transition-all duration-300 w-full h-full text-primary"
                 />
               </div>
               
-              {/* BeatPositionDisplay - 小さめに表示 */}
-              <div className="mt-4"> 
-                <BeatPositionDisplay 
-                  measure={currentMeasure}
-                  beat={currentBeat}
-                  meter={meter}
-                  changeEvery={changeEvery}
-                  className="text-lg text-text opacity-80"
-                />
+              {/* 中央コンテンツ - BeatVisualizerの上に配置 */}
+              <div 
+                className="relative w-full h-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300"
+                onClick={togglePlayback}
+              >
+                {/* 統合したNoteDisplayコンポーネント - CurrentNoteとNextNoteを置き換え */}
+                <div className="flex flex-col items-center justify-center">
+                  <NoteDisplay 
+                    currentNote={currentNote}
+                    nextNote={nextNote}
+                    isPlaying={isPlaying}
+                    onTap={togglePlayback}
+                    size="xlarge"
+                    showNextNote={true}
+                  />
+                </div>
+                
+                {/* BeatPositionDisplay - 小さめに表示 */}
+                <div className="mt-4"> 
+                  <BeatPositionDisplay 
+                    measure={currentMeasure}
+                    beat={currentBeat}
+                    meter={meter}
+                    changeEvery={changeEvery}
+                    className="text-lg text-text opacity-80"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      {/* コントロールエリア用のラッパー - 画面下部に固定し、左右マージンを確保 */}
-      <div className="w-full px-4 mb-4">
-        <div className="w-full max-w-3xl mx-auto">
-          <ControlsCard 
-            className="w-full shadow-card bg-gradient-light"
-            bpm={bpm}
-            onBpmChange={setBpm}
-            meter={meter}
-            onMeterChange={setMeter}
-            voice={voiceType}
-            onVoiceChange={setVoiceType}
-            accent={accentEnabled}
-            onAccentChange={setAccentEnabled}
-            changeEvery={changeEvery}
-            onChangeEveryChange={setChangeEvery}
-            selectedNotes={selectedNotes}
-            onSelectedNotesChange={setSelectedNotes}
-          />
+        
+        {/* コントロールエリア用のラッパー - 画面下部に固定し、左右マージンを確保 */}
+        <div className="w-full px-4 mb-4">
+          <div className="w-full max-w-3xl mx-auto">
+            <ControlsCard 
+              className="w-full shadow-card bg-gradient-light"
+              bpm={bpm}
+              onBpmChange={setBpm}
+              meter={meter}
+              onMeterChange={setMeter}
+              voice={voiceType}
+              onVoiceChange={setVoiceType}
+              accent={accentEnabled}
+              onAccentChange={setAccentEnabled}
+              changeEvery={changeEvery}
+              onChangeEveryChange={setChangeEvery}
+              selectedNotes={selectedNotes}
+              onSelectedNotesChange={setSelectedNotes}
+            />
+          </div>
         </div>
       </div>
-    </div>
+      
+      {/* ヘッダーをメインコンテンツの上に重ねる（絶対配置） */}
+      <div className="absolute top-0 left-0 right-0 z-10">
+        <AppHeader onHelpClick={handleHelpClick} />
+      </div>
+      
+      {/* オンボーディングモーダル */}
+      <OnboardingModal
+        open={onboardingOpen}
+        lang={onboardingLang}
+        onLangChange={setOnboardingLang}
+        onClose={handleCloseOnboarding}
+      />
+    </>
   );
 }
