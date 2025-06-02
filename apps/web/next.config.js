@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  basePath: '/tonetrainer',
+  assetPrefix: '/tonetrainer/',
+  env: {
+    NEXT_PUBLIC_BASE_PATH: '/tonetrainer',
+  },
   transpilePackages: [
     "react-native",
     "react-native-web",

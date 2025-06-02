@@ -1,4 +1,5 @@
 import { Note } from '../store';
+import { getAssetPath } from './pathUtils';
 
 // 全ての音名
 export const ALL_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -79,11 +80,14 @@ export function getAllPositionsForNote(noteName: string, maxFret: number = 12): 
   return positions;
 }
 
+export { getAssetPath };
+
 export default {
   ALL_NOTES,
   STANDARD_TUNING,
   getNoteFromFretPosition,
   getRandomFretPosition,
   generateRandomNote,
-  getAllPositionsForNote
+  getAllPositionsForNote,
+  getAssetPath
 };

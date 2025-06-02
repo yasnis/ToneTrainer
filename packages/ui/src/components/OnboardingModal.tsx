@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, StyleSheet, useWindowDimensions, Platform, Image } from 'react-native';
 import { Dialog } from './Dialog';
 import { EmblaCarousel, EmblaCarouselHandle } from './EmblaCarousel';
+import { getAssetPath } from '@tone-trainer/core/src/utils';
 
 type OnboardingModalProps = {
   open: boolean;
@@ -188,7 +189,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           {/* ロゴ */}
           <View style={styles.logoContainer}>
             <Image 
-              source={Platform.OS === 'web' ? { uri: '/images/logo.svg' } : { uri: 'https://tonetrainer.app/images/logo.svg' }}
+              source={{ uri: getAssetPath('/images/logo.svg') }}
               style={styles.logo}
               resizeMode="contain"
             />

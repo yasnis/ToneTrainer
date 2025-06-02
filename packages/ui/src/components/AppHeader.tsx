@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { getAssetPath } from '@tone-trainer/core/src/utils';
 
 interface AppHeaderProps {
   /**
@@ -41,7 +42,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* ロゴ画像を画面中央に絶対配置 */}
       <div className="absolute left-0 right-0 top-6 flex justify-center pointer-events-none">
         <img 
-          src="/images/logo.svg" 
+          src={getAssetPath('/images/logo.svg')} 
           alt="Tone Trainer Logo" 
           className="h-10 w-auto"
         />
