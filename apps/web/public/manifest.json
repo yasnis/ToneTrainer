@@ -6,7 +6,7 @@
   "scope": "/tonetrainer/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "/tonetrainer/icons/icon-192x192.png",
