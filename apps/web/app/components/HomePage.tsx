@@ -3,6 +3,7 @@
 import { ControlsCard, NoteDisplay, BeatVisualizer, BeatPositionDisplay, AppHeader, OnboardingModal } from '@tone-trainer/ui';
 import { BeatManager } from '@tone-trainer/core/src/utils/BeatManager';
 import { useState, useEffect, useRef } from 'react';
+import NoSleep from 'nosleep.js';
 
 // メトロノーム音を再生するシンプルなクラス
 class SimpleMetronome {
@@ -135,6 +136,9 @@ export default function HomePage() {
   // オーディオの初期化フラグ
   const [isAudioInitialized, setIsAudioInitialized] = useState(false);
   
+  // NoSleepインスタンスを保持するref
+  const noSleepRef = useRef<NoSleep | null>(null);
+  
   // SimpleMetronomeの参照を保持するためのref
   const simpleMetronomeRef = useRef<SimpleMetronome | null>(null);
   
@@ -148,6 +152,9 @@ export default function HomePage() {
     
     // SimpleMetronomeのインスタンスを作成
     simpleMetronomeRef.current = new SimpleMetronome();
+    
+    // NoSleepインスタンスを作成
+    noSleepRef.current = new NoSleep();
     
     // 初期音符を設定
     if (selectedNotes.length > 0) {
@@ -167,10 +174,36 @@ export default function HomePage() {
     
     // コンポーネントがアンマウントされる際の処理
     return () => {
-      // 特に何もしなくてよい
-      // インスタンスはガベージコレクションにより自動的に破棄される
+      // NoSleepを無効化
+      if (noSleepRef.current) {
+        noSleepRef.current.disable();
+      }
     };
   }, []);
+  
+  // 画面の可視性が変更されたときの処理
+  useEffect(() => {
+    // ブラウザ環境でのみ実行
+    if (typeof window === 'undefined') return;
+    
+    // visibilitychange イベントのハンドラー
+    const handleVisibilityChange = () => {
+      // 画面が表示された時に再生中であれば、NoSleepを再有効化
+      if (document.visibilityState === 'visible' && isPlaying && noSleepRef.current) {
+        noSleepRef.current.enable().catch(err => {
+          console.error('Failed to re-enable wake lock:', err);
+        });
+      }
+    };
+    
+    // イベントリスナーを登録
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // クリーンアップ
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isPlaying]);
   
   // selectedNotesが変更された時にCurrentNoteとNextNoteも更新
   useEffect(() => {
@@ -248,6 +281,23 @@ export default function HomePage() {
     // 再生状態を反転
     const newPlayingState = !isPlaying;
     setIsPlaying(newPlayingState);
+    
+    // NoSleepの有効/無効を切り替え
+    if (noSleepRef.current) {
+      if (newPlayingState) {
+        try {
+          // 再生開始時にNoSleepを有効化（画面をスリープさせない）
+          await noSleepRef.current.enable();
+          console.log('Screen wake lock enabled');
+        } catch (err) {
+          console.error('Failed to enable wake lock:', err);
+        }
+      } else {
+        // 再生停止時にNoSleepを無効化（画面スリープを許可）
+        noSleepRef.current.disable();
+        console.log('Screen wake lock disabled');
+      }
+    }
     
     // 再生開始時は、小節カウンターと拍位置をリセット
     if (newPlayingState) {
