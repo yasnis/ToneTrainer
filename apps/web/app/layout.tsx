@@ -13,7 +13,20 @@ const baloo2 = Baloo_2({
 
 export const metadata: Metadata = {
   title: 'Tone Trainer',
-  description: 'フレットボードの音名を練習するためのツール',
+  description: 'Welcome to Tone Trainer! Break free from fixed note orders — random prompts train real-time fretboard recall. 指板をいつもの順番で覚える癖をリセット。ランダムな音名提示で本当の記憶を鍛えましょう。',
+  manifest: '/manifest.json',
+  themeColor: '#4f46e5',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Tone Trainer',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({
@@ -30,9 +43,7 @@ export default function RootLayout({
       <body className="bg-background text-text h-full overflow-hidden">
         <div className="relative h-full">
           {/* メインコンテンツを画面全体に広げる */}
-          <main className="h-full overflow-hidden">
-            {children}
-          </main>
+          <main className="h-full overflow-hidden">{children}</main>
         </div>
       </body>
     </html>

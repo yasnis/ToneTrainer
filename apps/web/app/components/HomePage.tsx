@@ -5,6 +5,18 @@ import { BeatManager } from '@tone-trainer/core/src/utils/BeatManager';
 import { useState, useEffect, useRef } from 'react';
 import NoSleep from 'nosleep.js';
 
+// ServiceWorkerの登録処理
+const registerServiceWorker = async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register('/service-worker.js');
+      console.log('ServiceWorker登録成功:', registration.scope);
+    } catch (error) {
+      console.error('ServiceWorker登録失敗:', error);
+    }
+  }
+};
+
 // メトロノーム音を再生するシンプルなクラス
 class SimpleMetronome {
   private audioContext: AudioContext | null = null;
@@ -451,6 +463,11 @@ export default function HomePage() {
   const handleHelpClick = () => {
     setOnboardingOpen(true);
   };
+  
+  // PWAのServiceWorker登録
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
   
   return (
     <>

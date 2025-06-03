@@ -1,0 +1,23 @@
+{
+  "name": "ToneTrainer",
+  "short_name": "ToneTrainer",
+  "description": "Welcome to Tone Trainer! Break free from fixed note orders — random prompts train real-time fretboard recall. 指板をいつもの順番で覚える癖をリセット。ランダムな音名提示で本当の記憶を鍛えましょう。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
