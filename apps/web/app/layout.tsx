@@ -14,7 +14,7 @@ const baloo2 = Baloo_2({
 export const metadata: Metadata = {
   title: 'Tone Trainer',
   description: 'Welcome to Tone Trainer! Break free from fixed note orders — random prompts train real-time fretboard recall. 指板をいつもの順番で覚える癖をリセット。ランダムな音名提示で本当の記憶を鍛えましょう。',
-  manifest: '/manifest.json',
+  manifest: '/tonetrainer/manifest.json',
   themeColor: '#4f46e5',
   appleWebApp: {
     capable: true,
