@@ -312,8 +312,8 @@ export const ControlsCard: React.FC<ControlsCardProps> = ({
           <div className="flex-1 flex items-center">
             <input 
               type="range" 
-              min="20" 
-              max="240" 
+              min="30" 
+              max="150" 
               value={bpmValue}
               onChange={handleBpmChange}
               className="flex-1 accent-primary"
