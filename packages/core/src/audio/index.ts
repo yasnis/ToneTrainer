@@ -1,14 +1,35 @@
 import * as Tone from 'tone';
-import { Note } from '../store';
+import { Note, useAppStore } from '../store';
 
 // メトロノームクラス
 export class Metronome {
   private synth: any = null;
   private loop: any = null;
   private initialized: boolean = false;
+  private currentNote: Note | null = null;  // 現在の音符を保持するプロパティ
+  private accentEnabled: boolean = true;    // アクセントの有効/無効
+  private accentOctaveUp: boolean = true;   // アクセント音を1オクターブ上げるかどうか
   
   constructor() {
     // 遅延初期化するため、コンストラクタでは何もしない
+  }
+  
+  // 現在の音符を設定するメソッド
+  setCurrentNote(note: Note | null): void {
+    this.currentNote = note;
+    console.log('Metronome.setCurrentNote called with:', note);
+  }
+  
+  // アクセントの有効/無効を設定するメソッド
+  setAccent(enabled: boolean): void {
+    this.accentEnabled = enabled;
+    console.log('Metronome.setAccent called with:', enabled);
+  }
+  
+  // アクセント音をオクターブ上げるかどうかを設定するメソッド
+  setAccentOctaveUp(enabled: boolean): void {
+    this.accentOctaveUp = enabled;
+    console.log('Metronome.setAccentOctaveUp called with:', enabled);
   }
   
   // メトロノームの初期化（ユーザーのジェスチャー後に呼び出す）
@@ -62,11 +83,57 @@ export class Metronome {
     
     // クリックのループを作成
     this.loop = new Tone.Loop((time: number) => {
-      // クリック音を再生
-      if (this.synth) {
-        this.synth.triggerAttackRelease('C5', '16n', time);
+      // this.currentNoteからZustandのストアを参照するのではなく、クラスのプロパティを使用
+      if (this.currentNote) {
+        // 拍の位置を取得（Transportのpositionから計算）
+        const position = Tone.Transport.position.toString().split(':');
+        const beat = parseInt(position[1]) + 1; // 0-indexed to 1-indexed
+        
+        // オクターブを決定（アクセントが有効かつ1拍目かつオクターブアップが有効の場合はオクターブを上げる）
+        const baseOctave = this.currentNote.octave || 4; // デフォルトは4
+        const octave = (this.accentEnabled && beat === 1 && this.accentOctaveUp) 
+          ? baseOctave + 1 // アクセント時は1オクターブ上げる
+          : baseOctave;    // それ以外は元のオクターブ
+        
+        // 音符文字列を作成
+        const noteToPlay = `${this.currentNote.name}${octave}`;
+        
+        // デバッグ情報をログに出力
+        console.log('メトロノーム音:', { 
+          currentNote: this.currentNote,
+          beat: beat,
+          accentEnabled: this.accentEnabled,
+          accentOctaveUp: this.accentOctaveUp,
+          baseOctave: baseOctave,
+          octave: octave,
+          noteToPlay: noteToPlay
+        });
+        
+        // クリック音を再生
+        if (this.synth) {
+          this.synth.triggerAttackRelease(noteToPlay, '16n', time);
+        }
+      } else {
+        // currentNoteが設定されていない場合はデフォルトの音を使用
+        const position = Tone.Transport.position.toString().split(':');
+        const beat = parseInt(position[1]) + 1; // 0-indexed to 1-indexed
+        
+        // アクセントが有効で1拍目の場合はオクターブを上げる
+        const octave = (this.accentEnabled && beat === 1 && this.accentOctaveUp) ? 5 : 4;
+        const noteToPlay = `C${octave}`; // デフォルトはC
+        
+        console.log('メトロノーム音 (デフォルト):', { 
+          beat: beat,
+          accentEnabled: this.accentEnabled,
+          accentOctaveUp: this.accentOctaveUp,
+          noteToPlay: noteToPlay
+        });
+        
+        if (this.synth) {
+          this.synth.triggerAttackRelease(noteToPlay, '16n', time);
+        }
       }
-      
+
       // コールバックがあれば実行（次の音符を表示するなど）
       if (callback) {
         callback();

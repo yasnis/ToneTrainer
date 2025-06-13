@@ -2,6 +2,8 @@
 
 import { ControlsCard, NoteDisplay, BeatVisualizer, BeatPositionDisplay, AppHeader, OnboardingModal } from '@tone-trainer/ui';
 import { BeatManager } from '@tone-trainer/core/src/utils/BeatManager';
+import { metronome, notePlayer } from '@tone-trainer/core/src/audio';
+import { Note, useAppStore } from '@tone-trainer/core/src/store';
 import { useState, useEffect, useRef } from 'react';
 import NoSleep from 'nosleep.js';
 
@@ -17,105 +19,14 @@ const registerServiceWorker = async () => {
   }
 };
 
-// メトロノーム音を再生するシンプルなクラス
-class SimpleMetronome {
-  private audioContext: AudioContext | null = null;
-  private voiceType: 'click' | 'wood' | 'beep' = 'click';
-  private accentEnabled: boolean = true;
-  
-  constructor() {
-    // ユーザージェスチャー後に初期化するため、コンストラクタでは何もしない
-  }
-  
-  // 初期化（ユーザージェスチャー後に呼び出す）
-  async initialize() {
-    if (this.audioContext) return true;
-    
-    try {
-      this.audioContext = new AudioContext();
-      console.log('SimpleMetronome initialized');
-      return true;
-    } catch (error) {
-      console.error('Failed to initialize SimpleMetronome:', error);
-      return false;
-    }
-  }
-  
-  // 設定関数
-  setVoiceType(type: 'click' | 'wood' | 'beep') {
-    this.voiceType = type;
-  }
-  
-  setAccent(enabled: boolean) {
-    this.accentEnabled = enabled;
-  }
-  
-  // クリック音を再生（拍の番号を渡すことで、アクセントを適用するかどうかを判断）
-  playClick(beatNumber: number = 1) {
-    if (!this.audioContext) return;
-    
-    // 周波数とタイプの設定（音声タイプと拍の位置に基づく）
-    let frequency = 800;
-    let oscillatorType: OscillatorType = 'triangle';
-    let gainValue = 0.5;
-    let duration = 100; // ミリ秒
-    
-    // 音声タイプに基づく設定
-    switch (this.voiceType) {
-      case 'wood':
-        oscillatorType = 'triangle';
-        frequency = 600;
-        break;
-      case 'beep':
-        oscillatorType = 'sine';
-        frequency = 880;
-        break;
-      case 'click':
-      default:
-        oscillatorType = 'triangle';
-        frequency = 800;
-        break;
-    }
-    
-    // アクセントが有効で最初の拍の場合、音を強調
-    if (this.accentEnabled && beatNumber === 1) {
-      frequency *= 1.2; // 周波数を少し上げる
-      gainValue *= 1.2; // 音量を少し上げる
-    }
-    
-    // オシレーターを作成
-    const oscillator = this.audioContext.createOscillator();
-    oscillator.type = oscillatorType;
-    oscillator.frequency.value = frequency;
-    
-    // ゲインノードを作成（音量制御用）
-    const gainNode = this.audioContext.createGain();
-    gainNode.gain.value = gainValue;
-    
-    // 接続
-    oscillator.connect(gainNode);
-    gainNode.connect(this.audioContext.destination);
-    
-    // 短い音を再生
-    oscillator.start();
-    
-    // 設定した時間後に停止
-    setTimeout(() => {
-      oscillator.stop();
-      oscillator.disconnect();
-      gainNode.disconnect();
-    }, duration);
-  }
-}
-
 export default function HomePage() {
   // 再生状態の管理
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // 現在の音符（仮の実装）
+  // 現在の音符
   const [currentNote, setCurrentNote] = useState('C');
   
-  // 次の音符（仮の実装）
+  // 次の音符
   const [nextNote, setNextNote] = useState('G');
   
   // BPMの設定
@@ -151,9 +62,6 @@ export default function HomePage() {
   // NoSleepインスタンスを保持するref
   const noSleepRef = useRef<NoSleep | null>(null);
   
-  // SimpleMetronomeの参照を保持するためのref
-  const simpleMetronomeRef = useRef<SimpleMetronome | null>(null);
-  
   // BeatManagerの参照を保持するためのref
   const beatManagerRef = useRef<BeatManager | null>(null);
   
@@ -161,9 +69,6 @@ export default function HomePage() {
   useEffect(() => {
     // BeatManagerのインスタンスを作成
     beatManagerRef.current = new BeatManager(bpm, true);
-    
-    // SimpleMetronomeのインスタンスを作成
-    simpleMetronomeRef.current = new SimpleMetronome();
     
     // NoSleepインスタンスを作成
     noSleepRef.current = new NoSleep();
@@ -190,93 +95,58 @@ export default function HomePage() {
       if (noSleepRef.current) {
         noSleepRef.current.disable();
       }
+      
+      // メトロノームを停止
+      metronome.stop();
     };
-  }, []);
+  }, [bpm, selectedNotes]);
   
-  // 画面の可視性が変更されたときの処理
-  useEffect(() => {
-    // ブラウザ環境でのみ実行
-    if (typeof window === 'undefined') return;
-    
-    // visibilitychange イベントのハンドラー
-    const handleVisibilityChange = () => {
-      // 画面が表示された時に再生中であれば、NoSleepを再有効化
-      if (document.visibilityState === 'visible' && isPlaying && noSleepRef.current) {
-        noSleepRef.current.enable().catch(err => {
-          console.error('Failed to re-enable wake lock:', err);
-        });
-      }
-    };
-    
-    // イベントリスナーを登録
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // クリーンアップ
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isPlaying]);
-  
-  // selectedNotesが変更された時にCurrentNoteとNextNoteも更新
-  useEffect(() => {
-    // 選択された音符が空の場合は何もしない
-    if (selectedNotes.length === 0) return;
-    
-    // 現在の音符をランダムに選択
-    const randomCurrentIndex = Math.floor(Math.random() * selectedNotes.length);
-    const newCurrentNote = selectedNotes[randomCurrentIndex];
-    
-    // 次の音符を選択（現在の音符と異なるもの）
-    let randomNextIndex;
-    do {
-      randomNextIndex = Math.floor(Math.random() * selectedNotes.length);
-    } while (randomNextIndex === randomCurrentIndex && selectedNotes.length > 1);
-    
-    // 音符を更新
-    setCurrentNote(newCurrentNote);
-    setNextNote(selectedNotes[randomNextIndex]);
-    
-    // 音符変更時に小節カウンターをリセット
-    measureCountRef.current = 0;
-    setCurrentMeasure(1);
-  }, [selectedNotes]);
-  
-  // BPMが変更された時にBeatManagerのBPMも更新
+  // BPMが変更された時にBeatManagerのBPMも更新し、メトロノームのテンポも更新
   useEffect(() => {
     if (beatManagerRef.current) {
       beatManagerRef.current.setBpm(bpm);
     }
-  }, [bpm]);
-  
-  // 音声タイプが変更された時にSimpleMetronomeの設定も更新
-  useEffect(() => {
-    if (simpleMetronomeRef.current) {
-      simpleMetronomeRef.current.setVoiceType(voiceType);
+    
+    // 再生中の場合はメトロノームのテンポも更新
+    if (isPlaying) {
+      metronome.setTempo(bpm);
     }
-  }, [voiceType]);
+  }, [bpm, isPlaying]);
   
-  // アクセント設定が変更された時にSimpleMetronomeの設定も更新
+  // アクセントの設定が変更されたときにメトロノームに通知
   useEffect(() => {
-    if (simpleMetronomeRef.current) {
-      simpleMetronomeRef.current.setAccent(accentEnabled);
-    }
+    metronome.setAccent(accentEnabled);
   }, [accentEnabled]);
+  
+  // 現在の音符が変更されたときにメトロノームに通知
+  useEffect(() => {
+    // 現在の音符からNoteオブジェクトを作成
+    const noteObj: Note = {
+      name: currentNote,
+      octave: 4 // デフォルトのオクターブ
+    };
+    
+    // メトロノームに現在の音符を設定
+    metronome.setCurrentNote(noteObj);
+    
+    // Zustandストアも更新
+    useAppStore.setState({ currentNote: noteObj });
+    console.log('Updated store and metronome with current note:', noteObj);
+  }, [currentNote]);
   
   // オーディオの初期化（ユーザージェスチャー時に呼び出す）
   const initializeAudio = async () => {
     if (isAudioInitialized) return true;
     
-    if (simpleMetronomeRef.current) {
-      const success = await simpleMetronomeRef.current.initialize();
-      if (success) {
-        setIsAudioInitialized(true);
-        console.log('Audio initialized successfully');
-        return true;
-      }
+    try {
+      await metronome.initialize();
+      setIsAudioInitialized(true);
+      console.log('Audio initialized successfully');
+      return true;
+    } catch (error) {
+      console.error('Could not initialize audio:', error);
+      return false;
     }
-    
-    console.error('Could not initialize audio');
-    return false;
   };
   
   // 再生/停止をトグルする関数
@@ -311,11 +181,32 @@ export default function HomePage() {
       }
     }
     
-    // 再生開始時は、小節カウンターと拍位置をリセット
+    // 再生/停止をメトロノームに伝える
     if (newPlayingState) {
+      // Noteオブジェクトを作成して現在の音符を設定
+      const noteObj: Note = {
+        name: currentNote,
+        octave: 4 // オクターブを4に戻す
+      };
+      
+      // Zustandストアを更新して、メトロノームが現在の音符の音程で鳴るようにする
+      useAppStore.setState({ currentNote: noteObj });
+      console.log('Starting metronome with note:', noteObj);
+      
+      // メトロノームを開始（コールバック関数を渡して音符の変更に対応）
+      await metronome.start(bpm, () => {
+        // 現在のnoteObjを取得
+        const currentNoteObj = useAppStore.getState().currentNote;
+        console.log('Metronome callback with current note:', currentNoteObj);
+      });
+      
+      // 小節カウンターと拍位置をリセット
       setCurrentBeat(1);
       setCurrentMeasure(1);
       measureCountRef.current = 0;
+    } else {
+      // メトロノームを停止
+      metronome.stop();
     }
   };
   
@@ -357,11 +248,6 @@ export default function HomePage() {
             // 音符変更がない場合は小節をインクリメント
             nextMeasure = currentMeasure + 1;
           }
-        }
-        
-        // クリック音を再生（次の拍番号を渡す）
-        if (simpleMetronomeRef.current && isAudioInitialized) {
-          simpleMetronomeRef.current.playClick(nextBeat);
         }
         
         // ビートと小節の状態を一度に更新
