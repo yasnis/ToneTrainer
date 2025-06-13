@@ -2,7 +2,7 @@
 
 import { ControlsCard, NoteDisplay, BeatVisualizer, BeatPositionDisplay, AppHeader, OnboardingModal } from '@tone-trainer/ui';
 import { BeatManager } from '@tone-trainer/core/src/utils/BeatManager';
-import { metronome, notePlayer } from '@tone-trainer/core/src/audio';
+import { metronome } from '@tone-trainer/core/src/audio';
 import { Note, useAppStore } from '@tone-trainer/core/src/store';
 import { useState, useEffect, useRef } from 'react';
 import NoSleep from 'nosleep.js';

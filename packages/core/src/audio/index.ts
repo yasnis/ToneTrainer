@@ -1,5 +1,5 @@
 import * as Tone from 'tone';
-import { Note, useAppStore } from '../store';
+import { Note } from '../store';
 
 // メトロノームクラス
 export class Metronome {
